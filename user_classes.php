@@ -9,7 +9,7 @@
 
         public function login($email, $wachtwoord) {
             try {
-                $stmt = $this->db->prepare("SELECT * FROM gebruiker WHERE email=:email LIMIT 1");
+                $stmt = $this->db->prepare("SELECT * FROM gebruiker WHERE email=:email");
                 $stmt->execute(array(':email' => $email));
                 $userRow = $stmt->fetch(PDO::FETCH_ASSOC);
                 if ($stmt->rowCount() > 0) {
@@ -31,6 +31,19 @@
                 return true;
             } else {
                 return false;
+            }
+        }
+
+        public function alle_gebruikers(){
+            try {
+                $stmt = $this->db->prepare("SELECT * FROM gebruiker");
+                $stmt->execute();
+                $userRow = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                if ($stmt->rowCount() > 0) {
+                    return $userRow;
+                }
+            } catch (PDOException $e) {
+                echo $e->getMessage();
             }
         }
 
@@ -73,7 +86,6 @@
 
         public function nieuwe_gebruiker($gegevens) {
             try {
-                print_r($gegevens);
                 $voornaam = $gegevens['voornaam'];
                 $tussenvoegsel = $gegevens['tussenvoegsel'];
                 $achternaam = $gegevens['achternaam'];
@@ -84,8 +96,17 @@
                 $functie = $gegevens['functie'];
                 $maat = $gegevens['maat'];
                 $wachtwoord = $this->random_passwoord();
-                $wachtwoord = password_hash($wachtwoord, PASSWORD_DEFAULT);
+                $wachtwoordHash = password_hash($wachtwoord, PASSWORD_DEFAULT);
                 $datum_registratie = '2017-01-01';
+
+                $stmt = $this->db->prepare("SELECT * FROM gebruiker WHERE email=:email");
+                $stmt->execute(array(':email' => $mail));
+                $userRow = $stmt->fetch(PDO::FETCH_ASSOC);
+                if ($userRow > 1) {
+                    $error = array('type' => 'danger', 'message' => 'Dit e-mail adres bestaat al');
+
+                    return $error;
+                }
 
                 $stmt = $this->db->prepare("INSERT INTO `gebruiker`(`Voornaam`, `Tussenvoegsel`, `Achternaam`,`geb_datum`, `maat`, `Woonplaats`, `Telefoonnummer`, `email`, `Wachtwoord`, `datum_registratie`, `RolID`) 
                                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
@@ -98,10 +119,18 @@
                     $geb_datum,
                     $maat,
                     $mail,
-                    $wachtwoord,
+                    $wachtwoordHash,
                     $datum_registratie,
                     $functie
                 ));
+
+
+                $to = $mail;
+                $subject = "Account registratie";
+                $txt = "Huidige wachtwoord: " . $wachtwoord;
+                $headers = "From: info@pietenontour.com" . "\r\n";
+
+                mail($to,$subject,$txt,$headers);
 
             } catch (PDOException $e) {
                 echo $e->getMessage();

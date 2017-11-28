@@ -31,7 +31,8 @@
 <body>
 <a href="login/uitloggen.php">Uitloggen</a>
 <Br>
-<a href="gebruikers/aanmaken.php">Gebruiker aanmaken</a>
+<a href="gebruikers/aanmaken.php">Gebruiker aanmaken</a> <br>
+<a href="gebruikers/overzicht.php">Gebruikers overzicht</a>
 <br>
 <br>
 <?php
