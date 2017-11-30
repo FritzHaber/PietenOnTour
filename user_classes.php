@@ -124,13 +124,15 @@
                     $functie
                 ));
 
+                return $this->gebruiker_ophalen_id($this->db->lastInsertId());
 
-                $to = $mail;
-                $subject = "Account registratie";
-                $txt = "Huidige wachtwoord: " . $wachtwoord;
-                $headers = "From: info@pietenontour.com" . "\r\n";
 
-                mail($to, $subject, $txt, $headers);
+//                $to = $mail;
+//                $subject = "Account registratie";
+//                $txt = "Huidige wachtwoord: " . $wachtwoord;
+//                $headers = "From: info@pietenontour.com" . "\r\n";
+//
+//                mail($to, $subject, $txt, $headers);
             } catch (PDOException $e) {
                 echo $e->getMessage();
             }

@@ -5,7 +5,7 @@
     $user = new gebruiker($dbh);
 
     $gebruiker = $user->gebruiker_ophalen_id($_SESSION['user_session']);
-//    print_r($gebruiker['RolID']);
+
     if ($gebruiker['RolID'] != 3) {
         $_SESSION['flash'] = array(
             'type' => 'danger',
@@ -13,6 +13,7 @@
         );
         $user->redirect('../index.php');
     }
+    $rolID = $gebruiker['RolID'];
 
     $error = array();
     if (isset($_POST['opslaan'])) {
@@ -21,13 +22,18 @@
         ) {
             if (filter_var($_POST['mail'], FILTER_VALIDATE_EMAIL)) {
                 $gebruiker = $user->nieuwe_gebruiker($_POST);
-                if (!empty($gebruiker)){
-                    $error = $gebruiker;
-                } else{
-                    $error = array(
+                if (!empty($gebruiker)) {
+//                    print_r( $gebruiker["gebruikerID"]);
+//                    exit;
+                    $_SESSION['flash'] = array(
                         'type' => 'success',
                         'message' => 'Er is een mail gestuurd naar ' . $_POST['mail'] . '!'
                     );
+                    $url = 'bekijken.php?id='. $gebruiker['gebruikerID'];
+                    $user->redirect($url);
+
+                } else {
+                    $error = $gebruiker;
                 }
             } else {
                 $error = array(
@@ -53,22 +59,26 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css"
           integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="../styling/footer.css">
+    <link rel="stylesheet" href="../styling/nav-bar.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <title>Document</title>
-    <script type="text/javascript">
-            $('#geb_datum').datepicker({
-                format: 'yyyy-mm-dd'
-            });
-    </script>
 </head>
 <body>
+<div class="topnav">
+    <a class="active" href="pakken/pietenpakken.php">Pietenpakken</a>
+    <a href="pakken/sinterklaaspakken.php">Sinterklaaspakken</a>
+    <?php if ($rolID == '3') { ?>
+        <a href="pakken/beschadigd.php">Beschadigd</a>
+        <a href="gebruikers/gebuikers.php">Gebruikers</a>
+    <?php } ?>
+</div>
 <div class="container">
     <?php if (!empty($error)) { ?>
-        <div class="alert alert-<?php echo $error['type'];?> ">
-            <?php echo $error['message'];?>
+        <div class="alert alert-<?php echo $error['type']; ?> ">
+            <?php echo $error['message']; ?>
         </div>
     <?php } ?>
-    <a href="../index.php">Home</a>
     <h1>Gebruiker aanmaken</h1>
     <hr>
     <form method="POST" action="aanmaken.php">
@@ -157,55 +167,14 @@
         </div>
         <button name="opslaan" class="btn btn-primary">Gebruiker aanmaken</button>
     </form>
+    <div class="footer">
+        <div class="left">
+            <a href="../gebruikers/aanmaken.php">Gebruiker aanmaken</a>
+        </div>
+        <div class="right">
+            <a href="../login/uitloggen.php">Uitloggen</a>
+        </div>
+    </div>
 </div>
-<!---->
-<!--<form method="POST" action="aanmaken.php">-->
-<!--    <label for="">Voornaam</label>-->
-<!--    <input required name="voornaam" type="text">-->
-<!--    <br>-->
-<!--    <br>-->
-<!--    <label for="">Tussenvoegsel</label>-->
-<!--    <input name="tussenvoegsel" type="text">-->
-<!--    <br>-->
-<!--    <br>-->
-<!--    <label for="">Achternaam</label>-->
-<!--    <input required name="achternaam" type="text">-->
-<!--    <br>-->
-<!--    <br>-->
-<!--    <label for="">Geboortedatum</label>-->
-<!--    <input required name="geb_datum" type="text">-->
-<!--    <br>-->
-<!--    <br>-->
-<!--    <label for="">Maat</label>-->
-<!--    <select name="maat">-->
-<!--        <option value="S">S</option>-->
-<!--        <option value="M">M</option>-->
-<!--        <option value="L">L</option>-->
-<!--        <option value="XL">XL</option>-->
-<!--    </select>-->
-<!--    <br>-->
-<!--    <br>-->
-<!--    <label for="">Woonplaats</label>-->
-<!--    <input required name="woonplaats" type="text">-->
-<!--    <br>-->
-<!--    <br>-->
-<!--    <label for="">E-mail</label>-->
-<!--    <input required name="mail" type="text">-->
-<!--    <br>-->
-<!--    <br>-->
-<!--    <label for="">Telefoonnummer</label>-->
-<!--    <input required name="telefoon" type="text">-->
-<!--    <br>-->
-<!--    <br>-->
-<!--    <label for="">Functie</label>-->
-<!--    <select name="functie">-->
-<!--        <option value="1">Admin</option>-->
-<!--        <option value="2">Beheerder</option>-->
-<!--        <option value="3">Vrijwilliger</option>-->
-<!--    </select>-->
-<!--    <br>-->
-<!--    <br>-->
-<!--    <button name="opslaan">Aanmaken</button>-->
-<!--</form>-->
 </body>
 </html>

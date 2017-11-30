@@ -4,10 +4,34 @@
     bottom: 0;
     width: 100%;
     background-color: #aac960;
-    color: black;
-    text-align: center;
+    color: white;
+    display: inline;
+    clear: both;
+    height: 5%;
 }
 
-.navbar{
-    background-color: #aac960!important;
+.footer a {
+    color: #f2f2f2;
+    text-align: center;
+    width: 25%;
+    padding: 14px 16px;
+    text-decoration: none;
+    font-size: 17px;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+.footer a:hover {
+    background-color: #4CAF50;
+    color: black;
+}
+
+.left {
+    margin-top: 12px;
+    float: left;
+}
+
+.right {
+    float: right;
+    margin-top: 12px;
 }
