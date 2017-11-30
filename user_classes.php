@@ -34,7 +34,7 @@
             }
         }
 
-        public function alle_gebruikers(){
+        public function alle_gebruikers() {
             try {
                 $stmt = $this->db->prepare("SELECT * FROM gebruiker");
                 $stmt->execute();
@@ -130,7 +130,38 @@
                 $txt = "Huidige wachtwoord: " . $wachtwoord;
                 $headers = "From: info@pietenontour.com" . "\r\n";
 
-                mail($to,$subject,$txt,$headers);
+                mail($to, $subject, $txt, $headers);
+            } catch (PDOException $e) {
+                echo $e->getMessage();
+            }
+        }
+
+        public function gebruiker_bewerken($gegevens, $gebruikerId) {
+            try {
+                $voornaam = $gegevens['voornaam'];
+                $tussenvoegsel = $gegevens['tussenvoegsel'];
+                $achternaam = $gegevens['achternaam'];
+                $geb_datum = $gegevens['geb_datum'];
+                $mail = $gegevens['mail'];
+                $woonplaats = $gegevens['woonplaats'];
+                $telefoon = $gegevens['telefoon'];
+                $functie = $gegevens['functie'];
+                $maat = $gegevens['maat'];
+
+                $stmt = "UPDATE gebruiker 
+                            SET  Voornaam = ?, 
+                                 Tussenvoegsel =?, 
+                                 Achternaam =?,
+                                 geb_datum =?, 
+                                 maat =?, 
+                                 Woonplaats =?, 
+                                 Telefoonnummer =?,
+                                 email =?, 
+                                 RolID =?
+                                 WHERE gebruikerID = ?";
+                $stmt = $this->db->prepare($stmt);
+
+                $stmt->execute(array($voornaam,$tussenvoegsel,$achternaam,$geb_datum,$maat,$woonplaats,$telefoon,$mail,$functie, $gebruikerId));
 
             } catch (PDOException $e) {
                 echo $e->getMessage();

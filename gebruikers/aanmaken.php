@@ -5,7 +5,12 @@
     $user = new gebruiker($dbh);
 
     $gebruiker = $user->gebruiker_ophalen_id($_SESSION['user_session']);
+//    print_r($gebruiker['RolID']);
     if ($gebruiker['RolID'] != 3) {
+        $_SESSION['flash'] = array(
+            'type' => 'danger',
+            'message' => 'Je hebt geen rechten om een gebruiker aan te maken!'
+        );
         $user->redirect('../index.php');
     }
 
