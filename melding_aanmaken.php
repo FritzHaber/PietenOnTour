@@ -7,13 +7,13 @@
 */
 session_start();
 require 'connection/db_connectie.php';
-/* Deze code hieronder verwijderen als deze pagina gecombineerd is met de andere pagina's */ 
+/* Deze code hieronder verwijderen als de sessievariabelen bekend zijn */ 
+$_SESSION['FotoID'] = "";
 $_SESSION['PakID'] = 1;
 $_SESSION['Maat'] = 40;
 $_SESSION['Kleur'] = "rood";
 $_SESSION['Geslacht'] = "M";
-$_SESSION['FotoID'] = "";
-/* Deze code hierboven verwijderen als deze pagina samengevoegd is met de andere pagina's */
+/* Deze code hierboven verwijderen als de sessievariabelen bekend zijn */
 ?>
 <html>
     <head>
@@ -22,8 +22,6 @@ $_SESSION['FotoID'] = "";
     <body>
         <form name="aanmaken" method="POST" action="verwerk_aanmaken.php">
             <!-- Informatie over het pak -->
-            <!-- TODO: foto kunnen uploaden van de schade aan het pak -->
-            <!-- TODO: bestandspad van de foto_melding toevoegen -->
             <img src="<?php print $_SESSION['FotoID']?>"> 
             PakID: <?php print $_SESSION['PakID'] ?><br> 
             Maat: <?php print $_SESSION['Maat'] ?><br>
@@ -46,7 +44,11 @@ $_SESSION['FotoID'] = "";
                                     
             <!-- Sla de gegevens op of annuleer -->
             <input type="submit" name="opslaan" value="Opslaan">
-            <input type="submit" name="annuleren" value="Annuleren">
+            <input type="submit" name="annuleren" value="Annuleren"><br>
+            
+            <!-- Selecteer een foto om te uploaden -->
+            Selecteer een foto om te uploaden:
+            <input type="file" name="foto">     
         </form>
     </body>
 </html>
