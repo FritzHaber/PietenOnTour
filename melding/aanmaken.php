@@ -8,9 +8,6 @@ $_SESSION['pak_id'] = 1;
 $_SESSION['maat'] = 40;
 $_SESSION['kleur'] = "rood";
 $_SESSION['geslacht'] = "M";
-/* Deze code hierboven verwijderen als de sessievariabelen bekend zijn */
-
-/* Deze code hieronder verwijderen als de sessievariabelen bekend zijn */
 $_SESSION['gebruiker_id'] = 1;
 $_SESSION['pak_id'] = 1;
 /* Deze code hierboven verwijderen als de sessievariabelen bekend zijn */
