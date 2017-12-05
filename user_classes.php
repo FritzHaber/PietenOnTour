@@ -105,6 +105,7 @@
 
                 if ($userRow > 1) {
                     $error = array('type' => 'danger', 'message' => 'Dit e-mail adres bestaat al');
+
                     return $error;
                 }
 
@@ -127,12 +128,12 @@
                 return $this->gebruiker_ophalen_id($this->db->lastInsertId());
 
 
-//                $to = $mail;
-//                $subject = "Account registratie";
-//                $txt = "Huidige wachtwoord: " . $wachtwoord;
-//                $headers = "From: info@pietenontour.com" . "\r\n";
-//
-//                mail($to, $subject, $txt, $headers);
+                //                $to = $mail;
+                //                $subject = "Account registratie";
+                //                $txt = "Huidige wachtwoord: " . $wachtwoord;
+                //                $headers = "From: info@pietenontour.com" . "\r\n";
+                //
+                //                mail($to, $subject, $txt, $headers);
             } catch (PDOException $e) {
                 echo $e->getMessage();
             }
@@ -163,7 +164,18 @@
                                  WHERE gebruiker_id = ?";
                 $stmt = $this->db->prepare($stmt);
 
-                $stmt->execute(array($voornaam,$tussenvoegsel,$achternaam,$geb_datum,$maat,$woonplaats,$telefoon,$mail,$functie, $gebruikerId));
+                $stmt->execute(array(
+                    $voornaam,
+                    $tussenvoegsel,
+                    $achternaam,
+                    $geb_datum,
+                    $maat,
+                    $woonplaats,
+                    $telefoon,
+                    $mail,
+                    $functie,
+                    $gebruikerId
+                ));
 
             } catch (PDOException $e) {
                 return $error = array(
@@ -173,25 +185,87 @@
             }
         }
 
-        public function gebruiker_verwijderen($gebruiker){
-           try{
-               $gebruiker_id = $gebruiker['gebruiker_id'];
-               $stmt = "DELETE FROM gebruiker WHERE gebruiker_id = $gebruiker_id";
-               $stmt = $this->db->prepare($stmt);
-               $stmt->execute();
+        public function pak_ophalen_pakid($pak_id) {
+            try {
+                // gebruiker ophalen uit de database op basis van de gebuikerID
+                $stmt = $this->db->prepare("SELECT * FROM pak WHERE PakID=:pakid");
+                $stmt->execute(array(":pakid" => $pak_id));
+                $pak = $stmt->fetch(PDO::FETCH_ASSOC);
 
-               return $_SESSION['flash'] = array(
-                   'type' => 'success',
-                   'message' => 'Gebruiker is succesvol verwijderd!'
-               );
-           }catch (PDOException $e){
-               return $_SESSION['flash'] = array(
-                   'type' => 'danger',
-                   'message' => 'Er is iets fout gegaan tijden het verwijderen van deze gebruikter!'
-               );
-           }
+                return $pak;
+            } catch (PDOException $e) {
+                echo $e->getMessage();
+            }
         }
 
+        public function nieuw_pak($gegevens) {
+            try {
+                $pakid = $gegevens['pakid'];
+                $kleur = $gegevens['kleur'];
+                $geslacht = $gegevens['geslacht'];
+                $maat = $gegevens['maat'];
+                $type = $gegevens['type'];
+                $pat_foto = "C:/xampp/htdocs/KBS_login/uploads/" . basename($_FILES["profiel_foto"]["name"]);
+                $datum_upload = date("Y/m/d h:i:sa");
+                $status = $gegevens['beschadigd'];
+                $stmt = $this->db->prepare("SELECT * FROM pak WHERE PakID=:pakid");
+                $stmt->execute(array(':pakid' => $pakid));
+                $pakrow = $stmt->fetch(PDO::FETCH_ASSOC);
+                if ($pakRow > 1) {
+                    $error = array('type' => 'danger', 'message' => 'Dit pakid bestaat al');
+
+                    return $error;
+                }
+
+                $stmt = $this->db->prepare("INSERT INTO `pak`(`PakID`, `Kleur`, `Geslacht`,`Maat`, `Type`) 
+                                  VALUES (?, ?, ?, ?, ?)");
+                $stmt->execute(array(
+                    $pakid,
+                    $kleur,
+                    $geslacht,
+                    $maat,
+                    $type,
+                ));
+
+                $stmt = $this->db->prepare("INSERT INTO `foto_pak`(`FotoID`, `datum_upload`, `PakID`) 
+                                  VALUES (?, ?, ?)");
+                $stmt->execute(array(
+                    $pat_foto,
+                    $datum_upload,
+                    $pakid,
+                ));
+
+                $stmt = $this->db->prepare("INSERT INTO `status_pak`(`Status`, `PakID`) 
+                                  VALUES (?, ?)");
+                $stmt->execute(array(
+                    $status,
+                    $pakid,
+                ));
+
+                return $this->pak_ophalen_pakid($this->db->lastInsertId());
+            } catch (PDOException $e) {
+                echo $e->getMessage();
+            }
+        }
+
+        public function gebruiker_verwijderen($gebruiker) {
+            try {
+                $gebruiker_id = $gebruiker['gebruiker_id'];
+                $stmt = "DELETE FROM gebruiker WHERE gebruiker_id = $gebruiker_id";
+                $stmt = $this->db->prepare($stmt);
+                $stmt->execute();
+
+                return $_SESSION['flash'] = array(
+                    'type' => 'success',
+                    'message' => 'Gebruiker is succesvol verwijderd!'
+                );
+            } catch (PDOException $e) {
+                return $_SESSION['flash'] = array(
+                    'type' => 'danger',
+                    'message' => 'Er is iets fout gegaan tijden het verwijderen van deze gebruikter!'
+                );
+            }
+        }
     }
 
 ?>
