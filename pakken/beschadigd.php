@@ -4,7 +4,7 @@
     include_once '../user_classes.php';
     $user = new gebruiker($dbh);        
 
-    $dbh = $dbh->prepare("SELECT * FROM pak WHERE Type='piet'");
+    $dbh = $dbh->prepare("SELECT * FROM pak JOIN status_pak ON pak.PakID=status_pak.PakID JOIN foto_pak ON pak.PakID=foto_pak.PakID WHERE status='beschadigd' ORDER BY pak.PakID");
     $dbh->execute();
     $pakken = $dbh->fetchAll(PDO::FETCH_ASSOC);
 
@@ -22,18 +22,24 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Document</title>
+    <style>
+        img { 
+            height: 125px;
+            width: 125px; 
+        } 
+</style>
 </head>
 <body>
 <div class="topnav">
-    <a class="active" href="pakken/pietenpakken.php">Pietenpakken</a>
-    <a href="pakken/sinterklaaspakken.php">Sinterklaaspakken</a>
-    <a href="gebruikers/bekijken.php?id=4">Beschadigd</a>
+    <a href="pietenpakken.php">Pietenpakken</a>
+    <a href="sinterklaaspakken.php">Sinterklaaspakken</a>
+    <a class="active" href="beschadigd.php">Beschadigd</a>
     <a href="gebruikers/bekijken.php?id=4">Gebruikers bekijken</a>
 
 
 </div>
 <div class="container">
-    <h2>Overzicht pietenpakken</h2>
+    <h2>Overzicht beschadigde pakken</h2>
 
     <table class="table">
         <thead>
@@ -43,25 +49,22 @@
                 <th>Maat</th>
                 <th>Geslacht</th>
                 <th>Kleur</th>
-                <th>Beschadigd</th>
+                <th>Type</th>
             </tr>
            
         </thead>
         <tbody>
         <?php foreach($pakken as $pak): ?>
                 <tr>
-                    <td><img src="http://via.placeholder.com/100x100" alt="..." class="img-thumbnail"></td>
+                    <td><img src="<?php echo $pak['FotoID']; ?>" alt="..." class="img-thumbnail"></td>
                     <td><?php print_r($pak['PakID']); ?></td>
                     <td><?php print_r($pak['Maat']); ?></td>
                     <td><?php print_r($pak['Geslacht']); ?></td>
                     <td><?php print_r($pak['Kleur']); ?></td>
+                    <td><?php print_r($pak['Type']); ?></td>
                 </tr>
         <?php endforeach; ?>
-<!--        <tr>
-            <td><img src="http://via.placeholder.com/100x100" alt="..." class="img-thumbnail"></td>
-            <td>Dooley</td>
-            <td>july@example.com</td>
-        </tr>-->
+
         </tbody>
     </table>
     <Br>

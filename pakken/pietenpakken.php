@@ -4,7 +4,7 @@
     include_once '../user_classes.php';
     $user = new gebruiker($dbh);        
 
-    $dbh = $dbh->prepare("SELECT * FROM pak JOIN status_pak ON pak.PakID=status_pak.PakID JOIN foto_pak ON pak.PakID=foto_pak.PakID WHERE Type='Sinterklaas' ORDER BY pak.PakID");
+    $dbh = $dbh->prepare("SELECT * FROM pak JOIN status_pak ON pak.PakID=status_pak.PakID JOIN foto_pak ON pak.PakID=foto_pak.PakID WHERE Type='piet' ORDER BY pak.PakID");
     $dbh->execute();
     $pakken = $dbh->fetchAll(PDO::FETCH_ASSOC);
 
@@ -31,15 +31,15 @@
 </head>
 <body>
 <div class="topnav">
-    <a href="pietenpakken.php">Pietenpakken</a>
-    <a class="active" href="sinterklaaspakken.php">Sinterklaaspakken</a>
+    <a class="active" href="pietenpakken.php">Pietenpakken</a>
+    <a href="sinterklaaspakken.php">Sinterklaaspakken</a>
     <a href="beschadigd.php">Beschadigd</a>
     <a href="gebruikers/bekijken.php?id=4">Gebruikers bekijken</a>
 
 
 </div>
 <div class="container">
-    <h2>Overzicht Sinterklaaspakken</h2>
+    <h2>Overzicht Pietenpakken</h2>
 
     <table class="table">
         <thead>
