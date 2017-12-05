@@ -34,7 +34,7 @@
     <a class="active" href="pietenpakken.php">Pietenpakken</a>
     <a href="sinterklaaspakken.php">Sinterklaaspakken</a>
     <a href="beschadigd.php">Beschadigd</a>
-    <a href="gebruikers/bekijken.php?id=4">Gebruikers bekijken</a>
+    <a href="gebruikers/bekijken.php">Gebruikers bekijken</a>
 
 
 </div>

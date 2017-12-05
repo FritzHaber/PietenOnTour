@@ -1,7 +1,18 @@
 <!DOCTYPE html>
 <?php
+/* 
+* To change this license header, choose License Headers in Project Properties.
+* To change this template file, choose Tools | Templates
+* and open the template in the editor.
+*/
 session_start();
 require '../connection/db_connectie.php';
+/* Deze code hieronder verwijderen als de sessievariabelen bekend zijn */ 
+$_SESSION['FotoID'] = "";
+$_SESSION['PakID'] = 1;
+$_SESSION['Maat'] = 40;
+$_SESSION['Kleur'] = "rood";
+$_SESSION['Geslacht'] = "M";
 /* Deze code hieronder verwijderen als de sessievariabelen bekend zijn */
 $_SESSION['foto_id'] = "";
 $_SESSION['pak_id'] = 1;

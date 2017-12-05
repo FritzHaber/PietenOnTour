@@ -3,7 +3,7 @@
     require_once '../connection/db_connectie.php';
     include_once '../user_classes.php';
     $user = new gebruiker($dbh);
-    $loginError = '';
+    $loginError = null;
 
     // checken als er is ingelogd
     if ($user->is_ingelogd()) {
@@ -18,7 +18,10 @@
         $wachtwoord = $_POST['wachtwoord'];
 
         if ($user->login($email, $wachtwoord)) {
-
+            $_SESSION['ingelogd'] = array(
+                'type' => 'success',
+                'message' => 'Succesvol ingelogd!'
+            );
             $user->redirect('../index.php');
         } else {
             $loginError = 'E-mail of wachtwoord is niet bekend bij ons!';
@@ -33,13 +36,18 @@
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css"
           integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous">
+    <link rel="stylesheet" href="../styling/footer.css">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Document</title>
 </head>
 <body>
-<?php echo $loginError; ?>
 <div class="container">
+    <?php if (!is_null($loginError)) { ?>
+        <div class="alert alert-danger ">
+            <?php echo $loginError; ?>
+        </div>
+    <?php } ?>
     <form method="post" action="login.php">
         <div class="form-group">
             <label for="exampleInputEmail1">E-mail</label>
@@ -51,8 +59,9 @@
             <input name="wachtwoord" type="password" class="form-control" id="exampleInputPassword1"
                    placeholder="Wachtwoord">
         </div>
-        <button name="inloggen" type="submit" class="btn btn-primary">Submit</button>
+        <button name="inloggen" type="submit" class="btn btn-primary">Inloggen</button>
     </form>
 </div>
 </body>
+<script src="../scripts/script.js"></script>
 </html>

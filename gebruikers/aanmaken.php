@@ -4,16 +4,20 @@
     include_once '../user_classes.php';
     $user = new gebruiker($dbh);
 
+    // gebruiker ophalen uit de sessie
     $gebruiker = $user->gebruiker_ophalen_id($_SESSION['user_session']);
 
-    if ($gebruiker['RolID'] != 3) {
+    // cheken of de gebruiker rechten heeft
+    if ($gebruiker['rol_id'] != 3) {
         $_SESSION['flash'] = array(
             'type' => 'danger',
             'message' => 'Je hebt geen rechten om een gebruiker aan te maken!'
         );
         $user->redirect('../index.php');
     }
-    $rolID = $gebruiker['RolID'];
+
+    // rol id ophalen van de gebruiker
+    $rolID = $gebruiker['rol_id'];
 
     $error = array();
     if (isset($_POST['opslaan'])) {
@@ -22,18 +26,22 @@
         ) {
             if (filter_var($_POST['mail'], FILTER_VALIDATE_EMAIL)) {
                 $gebruiker = $user->nieuwe_gebruiker($_POST);
-                if (!empty($gebruiker)) {
-//                    print_r( $gebruiker["gebruikerID"]);
-//                    exit;
-                    $_SESSION['flash'] = array(
-                        'type' => 'success',
-                        'message' => 'Er is een mail gestuurd naar ' . $_POST['mail'] . '!'
-                    );
-                    $url = 'bekijken.php?id='. $gebruiker['gebruikerID'];
-                    $user->redirect($url);
-
-                } else {
+                if (isset($gebruiker['message'])) {
                     $error = $gebruiker;
+                } elseif (isset($gebruiker['gebruiker_id'])) {
+                    if (!empty($gebruiker)) {
+                        $_SESSION['gebruiker_aangemaakt'] = array(
+                            'type' => 'success',
+                            'message' => 'Er is een mail gestuurd naar ' . $_POST['mail'] . '!'
+                        );
+                        $url = 'bewerken.php?id=' . $gebruiker['gebruiker_id'];
+                        $user->redirect($url);
+                    }
+                } else {
+                    $error = array(
+                        'type' => 'danger',
+                        'message' => 'Er is iets fout gegaan tijdens het opslaan van de gebruiker!'
+                    );
                 }
             } else {
                 $error = array(
@@ -66,11 +74,11 @@
 </head>
 <body>
 <div class="topnav">
-    <a class="active" href="pakken/pietenpakken.php">Pietenpakken</a>
+    <a href="pakken/pietenpakken.php">Pietenpakken</a>
     <a href="pakken/sinterklaaspakken.php">Sinterklaaspakken</a>
     <?php if ($rolID == '3') { ?>
         <a href="pakken/beschadigd.php">Beschadigd</a>
-        <a href="gebruikers/gebuikers.php">Gebruikers</a>
+        <a href="../gebruikers/overzicht.php?pagina=1">Gebruikers</a>
     <?php } ?>
 </div>
 <div class="container">

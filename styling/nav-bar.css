@@ -26,3 +26,9 @@ body {margin:0;}
     background-color: #4CAF50;
     color: white;
 }
+
+tbody tr:hover{
+    background-color: #aac960!important;
+    cursor: pointer;
+    color: black;
+}
