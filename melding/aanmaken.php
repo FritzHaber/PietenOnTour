@@ -6,61 +6,24 @@
 * and open the template in the editor.
 */
 session_start();
-require '../connection/db_connectie.php';
-/* Deze code hieronder verwijderen als de sessievariabelen bekend zijn */ 
-$_SESSION['FotoID'] = "";
-$_SESSION['PakID'] = 1;
-$_SESSION['Maat'] = 40;
-$_SESSION['Kleur'] = "rood";
-$_SESSION['Geslacht'] = "M";
+require_once '../connection/db_connectie.php';
+require_once '../user_classes.php';
+$user = new gebruiker($dbh);
+// TODO: haal sessievariabelen op
 /* Deze code hieronder verwijderen als de sessievariabelen bekend zijn */
 $_SESSION['foto_id'] = "";
 $_SESSION['pak_id'] = 1;
 $_SESSION['maat'] = 40;
 $_SESSION['kleur'] = "rood";
 $_SESSION['geslacht'] = "M";
-$_SESSION['gebruiker_id'] = 1;
-$_SESSION['pak_id'] = 1;
 /* Deze code hierboven verwijderen als de sessievariabelen bekend zijn */
-$gebruiker_id = $_SESSION['gebruiker_id'];
+$gebruiker_id = $_SESSION['user_session']; 
 $pak_id = $_SESSION['pak_id'];
 
-// Controleer of the checkbox is aangevinkt
-if (isset($_POST['staat'])) {
-    $staat = 1;
-} else {
-    $staat = 0;
-}
-
-// Controleer of er op de 'Opslaan' knop is gedrukt, maak een nieuwe melding aan
+// Controleert of er op de 'Opslaan' knop is gedrukt, maakt een nieuwe melding aan
 if (isset($_POST['opslaan'])) {
-    $pak_id = $_SESSION['pak_id'];
-    $status_id = $_POST['status_id'];
-    $schademelding = $_POST['schademelding'];
-
-    // Voegt de nieuwe melding toe aan melding_pak
-    $stmt = $dbh->prepare("INSERT INTO melding_pak(pak_id, gebruiker_id, status_id, bericht) VALUES ($pak_id, $gebruiker_id, $status_id, '$schademelding')");
-    $stmt->execute();
-    
-    // Haalt de MeldingID op van de nieuw aangemaakte melding
-    $stmt = $dbh->prepare("SELECT MAX(melding_id) AS melding_id FROM melding_pak WHERE gebruiker_id = $gebruiker_id AND pak_id = $pak_id");
-    $stmt->execute();
-    
-    while ($row = $stmt->fetch()) {
-        $melding_id = $row['melding_id'];
-    }    
-    
-    // Verplaatst de geüploade foto naar de doelmap
-    // $_FILES["form input name"]["bestandsnaam"]
-    $doelmap = "uploads/" . basename($_FILES["foto"]["name"]); 
-    move_uploaded_file($_FILES["foto"]["tmp_name"], $doelmap);
-    $datum_upload = date("y-m-d H:i:s");
-    
-    // Voegt de foto van de schade toe 
-    $stmt = $dbh->prepare("INSERT INTO foto_melding VALUES ('$doelmap', $melding_id, '$datum_upload')");
-    $stmt->execute();
-    
-    header("Location: wijzigen.php");
+    $user->staat_pak($_POST['staat']); 
+    $user->aanmaken_melding();
 }
 ?>
 <html>
@@ -83,20 +46,19 @@ if (isset($_POST['opslaan'])) {
             <div class="topnav">
                 <a class="active" href="pakken/pietenpakken.php">Pietenpakken</a>
                 <a href="pakken/sinterklaaspakken.php">Sinterklaaspakken</a>
-                <?php if ($rol_id == '3') { ?>
                     <a href="pakken/beschadigd.php">Beschadigd</a>
-                    <a href="gebruikers/gebuikers.php">Gebruikers</a>
+                    <?php if ($rol_id == 3) { ?>
+                    <a href="gebruikers/gebruikers.php">Gebruikers</a>
                 <?php } ?>
             </div>
 
             <!-- Informatie over het pak -->                             
                 <div class="row" style="padding-left:20px;">
-                    <?php // print $_SESSION['FotoID'] ?>
-                    <img src="../xxl.jpg" class="img-responsive" width="200" height="250">
-                    <p style="padding:0px 0px 150px 10px;">PakID: <?php print $_SESSION['PakID'] ?><br>
-                                                           Maat: <?php print $_SESSION['Maat'] ?><br>                                                            
-                                                           Kleur: <?php print $_SESSION['Kleur'] ?><br>
-                                                           Geslacht: <?php print $_SESSION['Geslacht'] ?></p>
+                    <img src="<?php print($_SESSION['foto_id']) ?>" class="img-responsive" width="200" height="250">
+                    <p style="padding:0px 0px 150px 10px;">PakID: <?php print $_SESSION['pak_id'] ?><br>
+                                                           Maat: <?php print $_SESSION['maat'] ?><br>                                                            
+                                                           Kleur: <?php print $_SESSION['kleur'] ?><br>
+                                                           Geslacht: <?php print $_SESSION['geslacht'] ?></p>
                 </div>
 
             <!-- Selecteer de status van de melding -->
