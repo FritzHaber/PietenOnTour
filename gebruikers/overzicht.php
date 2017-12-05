@@ -1,7 +1,7 @@
 <?php
     session_start();
-    include_once 'connection/db_connectie.php';
-    include_once 'user_classes.php';
+    include_once '../connection/db_connectie.php';
+    include_once '../user_classes.php';
     $user = new gebruiker($dbh);
 
     // checken of de gebruiker is ingelogd
@@ -19,13 +19,42 @@
         unset($_SESSION['ingelogd']);
     }
 
-    $gebruiker = $user->gebruiker_ophalen_id($_SESSION['user_session']);
+    $ingelogde_gebruiker = $user->gebruiker_ophalen_id($_SESSION['user_session']);
 
     // rolID van de gebruike ophalen
-    $rolID = $gebruiker['rol_id'];
+    $rolID = $ingelogde_gebruiker['rol_id'];
 
     // gebruikersrol ophalen doormiddel van een functie
     $rol = $user->gebruikers_rol($rolID);
+
+    // Pagina's
+    //===============================================
+    // limiet per pagina instellen
+    $limiet = 2;
+    // gebruikers ophalen uit de database
+    $query = "SELECT * FROM gebruiker";
+    $s = $dbh->prepare($query);
+    $s->execute();
+
+    // berekenen hoeveel pagina's er zijn
+    $aantal_resultaten = $s->rowCount();
+    $aantal_paginas = ceil($aantal_resultaten / $limiet);
+
+    // paginanummer ophalen
+    if (!isset($_GET['pagina'])) {
+        $pagina = 1;
+    } else {
+        $pagina = $_GET['pagina'];
+    }
+
+    $begin_limiet = ($pagina - 1) * $limiet;
+    $lijst = "SELECT * FROM gebruiker ORDER BY voornaam DESC LIMIT $begin_limiet, 
+                      $limiet";
+
+    $r = $dbh->prepare($lijst);
+    $r->execute();
+
+    $gebruikers = $r->fetchAll(PDO::FETCH_ASSOC);
 ?>
 <!doctype html>
 <html lang="en">
@@ -35,27 +64,27 @@
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css"
           integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous">
-    <link rel="stylesheet" href="styling/footer.css">
-    <link rel="stylesheet" href="styling/nav-bar.css">
+    <link rel="stylesheet" href="../styling/footer.css">
+    <link rel="stylesheet" href="../styling/base.css">
+    <link rel="stylesheet" href="../styling/nav-bar.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <script src="scripts/script.js"></script>
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Gebruikers</title>
 </head>
 <body>
-
 <div class="topnav">
     <a href="pakken/pietenpakken.php">Pietenpakken</a>
     <a href="pakken/sinterklaaspakken.php">Sinterklaaspakken</a>
     <?php if ($rolID == '3') { ?>
         <a href="pakken/beschadigd.php">Beschadigd</a>
-        <a href="gebruikers/overzicht.php?pagina=1">Gebruikers</a>
+        <a href="../gebruikers/overzicht.php?pagina=1">Gebruikers</a>
     <?php } ?>
 </div>
 <div class="container">
     <div class="row">
         <div class="col-sm">
-            <h2>Overzicht pietenpakken</h2>
+            <h2>Overzicht gebruikers</h2>
         </div>
         <div class="col-sm">
             <div class="input-group">
@@ -72,58 +101,29 @@
     <table id="gebruikersTabel" class="table">
         <thead>
         <tr>
-            <th>Firstname</th>
-            <th>Lastname</th>
+            <th>Voornaam</th>
             <th>Email</th>
+            <th>Telefoonnummer</th>
+            <th>Maat</th>
         </tr>
         </thead>
         <tbody>
-        <tr>
-            <td><img src="http://via.placeholder.com/100x100" alt="..." class="img-thumbnail"></td>
-            <td>Doe</td>
-            <td>john@example.com</td>
-        </tr>
-        <tr>
-            <td><img src="http://via.placeholder.com/100x100" alt="..." class="img-thumbnail"></td>
-            <td>Moe</td>
-            <td>mary@example.com</td>
-        </tr>
-        <tr>
-            <td><img src="http://via.placeholder.com/100x100" alt="..." class="img-thumbnail"></td>
-            <td>Dooley</td>
-            <td>july@example.com</td>
-        </tr>
+        <?php foreach ($gebruikers as $gebruiker): ?>
+            <tr data-href="bewerken.php?id=<?php echo $gebruiker['gebruiker_id'] ?> ">
+                <td>
+                    <?php
+                        echo $gebruiker['voornaam'];
+                        echo !is_null($gebruiker['tussenvoegsel']) ? ' ' . $gebruiker['tussenvoegsel'] . ' ' : ' ';
+                        echo $gebruiker['achternaam'];
+                    ?>
+                </td>
+                <td> <?php echo $gebruiker['email'] ?> </td>
+                <td> <?php echo $gebruiker['telefoonnummer'] ?> </td>
+                <td> <?php echo $gebruiker['maat'] ?> </td>
+            </tr>
+        <?php endforeach; ?>
         </tbody>
     </table>
-    <Br>
-    <?php
-        // limiet per pagina instellen
-        $limiet = 2;
-
-        // gebruikers ophalen uit de database
-        $query = "SELECT * FROM gebruiker";
-        $s = $dbh->prepare($query);
-        $s->execute();
-
-        // berekenen hoeveel pagina's er zijn
-        $aantal_resultaten = $s->rowCount();
-        $aantal_paginas = ceil($aantal_resultaten / $limiet);
-
-        // paginanummer ophalen
-        if (!isset($_GET['pagina'])) {
-            $pagina = 1;
-        } else {
-            $pagina = $_GET['pagina'];
-        }
-
-        $begin_limiet = ($pagina - 1) * $limiet;
-        $lijst = "SELECT * FROM gebruiker ORDER BY voornaam DESC LIMIT $begin_limiet, 
-                      $limiet";
-
-        $r = $dbh->prepare($lijst);
-        $r->execute();
-
-    ?>
     <hr>
     <nav aria-label="Page navigation example">
         <ul class="pagination justify-content-center">
@@ -138,10 +138,10 @@
     </nav>
     <div class="footer">
         <div class="left">
-            <a href="login/uitloggen.php">Pak toevoegen</a>
+            <a href="../gebruikers/aanmaken.php">Gebruiker toevoegen</a>
         </div>
         <div class="right">
-            <a href="login/uitloggen.php">Uitloggen</a>
+            <a href="../login/uitloggen.php">Uitloggen</a>
         </div>
     </div>
 </div>
@@ -149,6 +149,10 @@
 </html>
 
 <script>
+    $('tr[data-href]').on("click", function () {
+        document.location = $(this).data('href');
+    });
+
     function filter_table() {
         var input, filter, table, tr, td, i;
         input = document.getElementById("filter");

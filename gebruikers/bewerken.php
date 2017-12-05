@@ -4,19 +4,26 @@
     include_once '../user_classes.php';
     $user = new gebruiker($dbh);
 
+
     if (!$user->gebruikers_rol(3)) {
         $_SESSION['flash'] = array(
             'type' => 'danger',
-            'message' => 'Je hebt geen rechten om een gebruiker aan te maken!'
+            'message' => 'Je hebt geen rechten om een gebruiker te bewerken!'
         );
         $user->redirect('../index.php');
     }
 
+    if (isset($_SESSION['gebruiker_aangemaakt'])) {
+        $error = $_SESSION['gebruiker_aangemaakt'];
+        unset($_SESSION['gebruiker_aangemaakt']);
+    }
+
     $gebruikerId = $_GET['id'];
     $gebruiker = $user->gebruiker_ophalen_id($gebruikerId);
-    $rolID = $gebruiker['RolID'];
-    
-    if (empty($gebruiker)) {
+    $ingelogde_gebruiker = $user->gebruiker_ophalen_id($_SESSION['user_session']);
+    $rolID = $ingelogde_gebruiker['rol_id'];
+
+    if (empty($ingelogde_gebruiker)) {
         $user->redirect('../index.php');
     }
 
@@ -26,11 +33,17 @@
         ) {
             if (filter_var($_POST['mail'], FILTER_VALIDATE_EMAIL)) {
                 $gebruiker = $user->gebruiker_bewerken($_POST, $gebruikerId);
-                $gebruiker = $user->gebruiker_ophalen_id($gebruikerId);
-                $error = array(
-                    'type' => 'success',
-                    'message' => 'Gebruiker succesvol bijgewerkt!'
-                );
+                if (isset($gebruiker['type'])) {
+                    $error = $gebruiker;
+                    $gebruiker = $user->gebruiker_ophalen_id($gebruikerId);
+                } else {
+                    $gebruiker = $user->gebruiker_ophalen_id($gebruikerId);
+                    $error = array(
+                        'type' => 'success',
+                        'message' => 'Gebruiker succesvol bijgewerkt!'
+                    );
+                }
+
             } else {
                 $error = array(
                     'type' => 'danger',
@@ -56,25 +69,27 @@
           integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <link rel="stylesheet" href="../styling/footer.css">
+    <link rel="stylesheet" href="../styling/base.css">
+    <script src="../scripts/script.js"></script>
     <link rel="stylesheet" href="../styling/nav-bar.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-    <title>Document</title>
+    <title>Pak bewerken</title>
 </head>
 <body>
-
 <div class="topnav">
-    <a class="active" href="pakken/pietenpakken.php">Pietenpakken</a>
+    <a href="pakken/pietenpakken.php">Pietenpakken</a>
     <a href="pakken/sinterklaaspakken.php">Sinterklaaspakken</a>
     <?php if ($rolID == '3') { ?>
         <a href="pakken/beschadigd.php">Beschadigd</a>
-        <a href="gebruikers/gebuikers.php">Gebruikers</a>
+        <a href="../gebruikers/overzicht.php?pagina=1">Gebruikers</a>
     <?php } ?>
 </div>
+
 <div class="container">
     <h1>Gebruiker '<?php
-            echo $gebruiker['Voornaam'];
-            echo !is_null($gebruiker['Tussenvoegsel']) ? ' ' . $gebruiker['Tussenvoegsel'] . ' ' : ' ';
-            echo $gebruiker['Achternaam'];
+            echo $gebruiker['voornaam'];
+            echo !is_null($gebruiker['tussenvoegsel']) ? ' ' . $gebruiker['tussenvoegsel'] . ' ' : ' ';
+            echo $gebruiker['achternaam'];
         ?>' bewerken
     </h1>
     <hr>
@@ -83,28 +98,28 @@
             <?php echo $error['message']; ?>
         </div>
     <?php } ?>
-    <form method="POST" action="bekijken.php?id=<?php echo $gebruikerId ?>">
+    <form method="POST" action="bewerken.php?id=<?php echo $gebruikerId ?>">
         <div class="row">
             <div class="col-sm-6">
                 <div class="form-group row">
                     <label for="voornaam" class="col-sm-3 col-form-label">Voornaam</label>
                     <div class="col-sm-9">
                         <input name="voornaam" required type="text" class="form-control" id="voornaam"
-                               value="<?php echo isset($gebruiker["Voornaam"]) ? $gebruiker["Voornaam"] : ''; ?>">
+                               value="<?php echo isset($gebruiker["voornaam"]) ? $gebruiker["voornaam"] : ''; ?>">
                     </div>
                 </div>
                 <div class="form-group row">
                     <label for="tussenvoegsel" class="col-sm-3 col-form-label">Tussenvoegsel</label>
                     <div class="col-sm-9">
                         <input name="tussenvoegsel" type="text" class="form-control" id="tussenvoegsel"
-                               value="<?php echo isset($gebruiker["Tussenvoegsel"]) ? $gebruiker["Tussenvoegsel"] : ''; ?>">
+                               value="<?php echo isset($gebruiker["tussenvoegsel"]) ? $gebruiker["tussenvoegsel"] : ''; ?>">
                     </div>
                 </div>
                 <div class="form-group row">
                     <label for="achternaam" class="col-sm-3 col-form-label">Achternaam</label>
                     <div class="col-sm-9">
                         <input name="achternaam" required type="text" class="form-control" id="achternaam"
-                               value="<?php echo isset($gebruiker["Achternaam"]) ? $gebruiker["Achternaam"] : ''; ?>">
+                               value="<?php echo isset($gebruiker["achternaam"]) ? $gebruiker["achternaam"] : ''; ?>">
                     </div>
                 </div>
 
@@ -112,7 +127,7 @@
                     <label for="woonplaats" class="col-sm-3 col-form-label">Woonplaats</label>
                     <div class="col-sm-9">
                         <input name="woonplaats" required type="text" class="form-control" id="woonplaats"
-                               value="<?php echo isset($gebruiker["Woonplaats"]) ? $gebruiker["Woonplaats"] : ''; ?>">
+                               value="<?php echo isset($gebruiker["woonplaats"]) ? $gebruiker["woonplaats"] : ''; ?>">
                     </div>
                 </div>
                 <div class="form-group row">
@@ -122,15 +137,20 @@
                                value="<?php echo isset($gebruiker["email"]) ? $gebruiker["email"] : ''; ?>">
                     </div>
                 </div>
-
                 <div class="form-group row">
                     <label for="functie" class="col-sm-3 col-form-label">Functie</label>
                     <select name="functie" class="form-control col-sm-9" id="functie">
-                        <option value="1">Vrijwilliger
+                        <option <?php if ($gebruiker['rol_id'] == "1") {
+                            echo 'selected="selected"';
+                        } ?> value="1">Vrijwilliger
                         </option>
-                        <option value="2">Beheerder
+                        <option <?php if ($gebruiker['rol_id'] == "2") {
+                            echo 'selected="selected"';
+                        } ?> value="2">Beheerder
                         </option>
-                        <option value="3">Admin
+                        <option <?php if ($gebruiker['rol_id'] == "3") {
+                            echo 'selected="selected"';
+                        } ?> value="3">Admin
                         </option>
                     </select>
                 </div>
@@ -148,13 +168,21 @@
                 <div class="form-group row">
                     <label for="maat" class="col-sm-3 col-form-label">Maat</label>
                     <select name="maat" class="form-control col-sm-9" id="maat">
-                        <option value="s">S
+                        <option <?php if ($gebruiker['maat'] == "s") {
+                            echo 'selected="selected"';
+                        } ?> value="s">S
                         </option>
-                        <option value="m">M
+                        <option <?php if ($gebruiker['maat'] == "m") {
+                            echo 'selected="selected"';
+                        } ?> value="m">M
                         </option>
-                        <option value="x">X
+                        <option <?php if ($gebruiker['maat'] == "x") {
+                            echo 'selected="selected"';
+                        } ?> value="x">X
                         </option>
-                        <option value="xl">XL
+                        <option <?php if ($gebruiker['maat'] == "xl") {
+                            echo 'selected="selected"';
+                        } ?> value="xl">XL
                         </option>
                     </select>
                 </div>
@@ -162,7 +190,7 @@
                     <label for="telefoon" class="col-sm-3 col-form-label">Telefoonnummer</label>
                     <div class="col-sm-9">
                         <input name="telefoon"
-                               value="<?php echo isset($gebruiker["Telefoonnummer"]) ? $gebruiker["Telefoonnummer"] : ''; ?>"
+                               value="<?php echo isset($gebruiker["telefoonnummer"]) ? $gebruiker["telefoonnummer"] : ''; ?>"
                                required
                                type="number" class="form-control" id="telefoon">
                     </div>
@@ -174,6 +202,7 @@
     <div class="footer">
         <div class="left">
             <a href="../gebruikers/aanmaken.php">Gebruiker aanmaken</a>
+            <a href="../gebruikers/verwijderen.php?id=<?php echo $gebruikerId; ?>">Deze gebruiker verwijderen</a>
         </div>
         <div class="right">
             <a href="../login/uitloggen.php">Uitloggen</a>

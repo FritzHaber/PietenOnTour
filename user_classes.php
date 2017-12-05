@@ -13,8 +13,8 @@
                 $stmt->execute(array(':email' => $email));
                 $userRow = $stmt->fetch(PDO::FETCH_ASSOC);
                 if ($stmt->rowCount() > 0) {
-                    if (password_verify($wachtwoord, $userRow['Wachtwoord'])) {
-                        $_SESSION['user_session'] = $userRow['gebruikerID'];
+                    if (password_verify($wachtwoord, $userRow['wachtwoord'])) {
+                        $_SESSION['user_session'] = $userRow['gebruiker_id'];
 
                         return true;
                     } else {
@@ -53,7 +53,7 @@
 
         public function gebruikers_rol($rolID) {
             try {
-                $stmt = $this->db->prepare("SELECT * FROM rol WHERE RolID=:rolID");
+                $stmt = $this->db->prepare("SELECT * FROM rol WHERE rol_id=:rolID");
                 $stmt->execute(array(':rolID' => $rolID));
                 $userRow = $stmt->fetch(PDO::FETCH_ASSOC);
                 if ($stmt->rowCount() > 0) {
@@ -67,7 +67,7 @@
         public function gebruiker_ophalen_id($gebruiker_id) {
             try {
                 // gebruiker ophalen uit de database op basis van de gebuikerID
-                $stmt = $this->db->prepare("SELECT * FROM gebruiker WHERE gebruikerID=:gebruiker_id");
+                $stmt = $this->db->prepare("SELECT * FROM gebruiker WHERE gebruiker_id=:gebruiker_id");
                 $stmt->execute(array(":gebruiker_id" => $gebruiker_id));
                 $gebruiker = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -97,27 +97,27 @@
                 $maat = $gegevens['maat'];
                 $wachtwoord = $this->random_passwoord();
                 $wachtwoordHash = password_hash($wachtwoord, PASSWORD_DEFAULT);
-                $datum_registratie = '2017-01-01';
+                $datum_registratie = date("Y/m/d h:i:sa");
 
                 $stmt = $this->db->prepare("SELECT * FROM gebruiker WHERE email=:email");
                 $stmt->execute(array(':email' => $mail));
                 $userRow = $stmt->fetch(PDO::FETCH_ASSOC);
+
                 if ($userRow > 1) {
                     $error = array('type' => 'danger', 'message' => 'Dit e-mail adres bestaat al');
-
                     return $error;
                 }
 
-                $stmt = $this->db->prepare("INSERT INTO `gebruiker`(`Voornaam`, `Tussenvoegsel`, `Achternaam`,`geb_datum`, `maat`, `Woonplaats`, `Telefoonnummer`, `email`, `Wachtwoord`, `datum_registratie`, `RolID`) 
+                $stmt = $this->db->prepare("INSERT INTO `gebruiker`(`voornaam`, `tussenvoegsel`, `achternaam`,`geb_datum`, `maat`, `woonplaats`, `telefoonnummer`, `email`, `wachtwoord`, `datum_registratie`, `rol_id`) 
                                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
                 $stmt->execute(array(
                     $voornaam,
                     $tussenvoegsel,
                     $achternaam,
-                    $woonplaats,
-                    $telefoon,
                     $geb_datum,
                     $maat,
+                    $woonplaats,
+                    $telefoon,
                     $mail,
                     $wachtwoordHash,
                     $datum_registratie,
@@ -151,23 +151,45 @@
                 $maat = $gegevens['maat'];
 
                 $stmt = "UPDATE gebruiker 
-                            SET  Voornaam = ?, 
-                                 Tussenvoegsel =?, 
-                                 Achternaam =?,
+                            SET  voornaam = ?, 
+                                 tussenvoegsel =?, 
+                                 achternaam =?,
                                  geb_datum =?, 
                                  maat =?, 
-                                 Woonplaats =?, 
-                                 Telefoonnummer =?,
+                                 woonplaats =?, 
+                                 telefoonnummer =?,
                                  email =?, 
-                                 RolID =?
-                                 WHERE gebruikerID = ?";
+                                 rol_id =?
+                                 WHERE gebruiker_id = ?";
                 $stmt = $this->db->prepare($stmt);
 
                 $stmt->execute(array($voornaam,$tussenvoegsel,$achternaam,$geb_datum,$maat,$woonplaats,$telefoon,$mail,$functie, $gebruikerId));
 
             } catch (PDOException $e) {
-                echo $e->getMessage();
+                return $error = array(
+                    'type' => 'danger',
+                    'message' => 'Dit e-mail adres is al in gebruik!'
+                );
             }
+        }
+
+        public function gebruiker_verwijderen($gebruiker){
+           try{
+               $gebruiker_id = $gebruiker['gebruiker_id'];
+               $stmt = "DELETE FROM gebruiker WHERE gebruiker_id = $gebruiker_id";
+               $stmt = $this->db->prepare($stmt);
+               $stmt->execute();
+
+               return $_SESSION['flash'] = array(
+                   'type' => 'success',
+                   'message' => 'Gebruiker is succesvol verwijderd!'
+               );
+           }catch (PDOException $e){
+               return $_SESSION['flash'] = array(
+                   'type' => 'danger',
+                   'message' => 'Er is iets fout gegaan tijden het verwijderen van deze gebruikter!'
+               );
+           }
         }
 
     }

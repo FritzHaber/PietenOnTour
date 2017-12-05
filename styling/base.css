@@ -1,0 +1,13 @@
+body{
+    font-family: "Open Sans",Arial,sans-serif;
+    font-size: 16px;
+    font-weight: 500;
+}
+
+.page-item.active .page-link {
+    background-color: #4CAF50;
+    border-color: #4CAF50;
+}
+.page-link{
+    color: #4CAF50;
+}

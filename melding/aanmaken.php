@@ -6,7 +6,7 @@
 * and open the template in the editor.
 */
 session_start();
-require 'connection/db_connectie.php';
+require '../connection/db_connectie.php';
 /* Deze code hieronder verwijderen als de sessievariabelen bekend zijn */ 
 $_SESSION['FotoID'] = "";
 $_SESSION['PakID'] = 1;
