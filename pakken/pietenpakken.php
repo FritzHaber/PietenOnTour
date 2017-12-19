@@ -191,7 +191,7 @@
 </div>
 <div class="footer">
     <div class="left">
-        <a href="../pakken/toevoegen.php">Pak toevoegen</a>
+        <a href="toevoegen.php">Pak toevoegen</a>
     </div>
     <div class="right">
         <a href="../login/uitloggen.php">Uitloggen</a>

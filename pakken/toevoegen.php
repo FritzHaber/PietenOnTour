@@ -20,7 +20,7 @@ and open the template in the editor.
             'type' => 'danger',
             'message' => 'Je hebt geen rechten om een gebruiker aan te maken!'
         );
-        $user->redirect('../index.php');
+        $user->redirect('toevoegen.php');
     }
     $rolID = $gebruiker['rol_id'];
 
