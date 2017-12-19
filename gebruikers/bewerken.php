@@ -4,20 +4,6 @@
     include_once '../user_classes.php';
     $user = new gebruiker($dbh);
 
-
-    if (!$user->gebruikers_rol(3)) {
-        $_SESSION['flash'] = array(
-            'type' => 'danger',
-            'message' => 'Je hebt geen rechten om een gebruiker te bewerken!'
-        );
-        $user->redirect('../index.php');
-    }
-
-    if (isset($_SESSION['gebruiker_aangemaakt'])) {
-        $error = $_SESSION['gebruiker_aangemaakt'];
-        unset($_SESSION['gebruiker_aangemaakt']);
-    }
-
     $gebruikerId = $_GET['id'];
     $gebruiker = $user->gebruiker_ophalen_id($gebruikerId);
     $ingelogde_gebruiker = $user->gebruiker_ophalen_id($_SESSION['user_session']);
@@ -25,6 +11,19 @@
 
     if (empty($ingelogde_gebruiker)) {
         $user->redirect('../index.php');
+    }
+
+    if ($rolID != 3) {
+        $_SESSION['flash'] = array(
+            'type' => 'danger',
+            'message' => 'Je hebt geen rechten om een gebruiker te bewerken!'
+        );
+        $user->redirect('../pakken/pietenpakken.php');
+    }
+
+    if (isset($_SESSION['gebruiker_aangemaakt'])) {
+        $error = $_SESSION['gebruiker_aangemaakt'];
+        unset($_SESSION['gebruiker_aangemaakt']);
     }
 
     if (isset($_POST['opslaan'])) {
@@ -73,14 +72,14 @@
     <script src="../scripts/script.js"></script>
     <link rel="stylesheet" href="../styling/nav-bar.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-    <title>Pak bewerken</title>
+    <title>Gebruiker '<?php echo $gebruikerId ?>' bewerken</title>
 </head>
 <body>
 <div class="topnav">
-    <a href="pakken/pietenpakken.php">Pietenpakken</a>
-    <a href="pakken/sinterklaaspakken.php">Sinterklaaspakken</a>
+    <a href="../pakken/pietenpakken.php?pagina=1">Pietenpakken</a>
+    <a href="../pakken/sinterklaaspakken.php?pagina=1">Sinterklaaspakken</a>
     <?php if ($rolID == '3') { ?>
-        <a href="pakken/beschadigd.php">Beschadigd</a>
+        <a href="../pakken/beschadigd.php?pagina=1">Beschadigd</a>
         <a href="../gebruikers/overzicht.php?pagina=1">Gebruikers</a>
     <?php } ?>
 </div>
@@ -202,9 +201,10 @@
     <div class="footer">
         <div class="left">
             <a href="../gebruikers/aanmaken.php">Gebruiker aanmaken</a>
-            <a href="../gebruikers/verwijderen.php?id=<?php echo $gebruikerId; ?>">Deze gebruiker verwijderen</a>
+            <a href="../gebruikers/verwijderen.php?id=<?php echo $gebruikerId; ?>" onclick="return confirm('Weet je zeker dat je deze gebruiker wil verwijderen?')">Deze gebruiker verwijderen</a>
         </div>
         <div class="right">
+            <a href="../gebruikers/mijn-account.php">Account</a>
             <a href="../login/uitloggen.php">Uitloggen</a>
         </div>
     </div>

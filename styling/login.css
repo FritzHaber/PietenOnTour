@@ -1,0 +1,16 @@
+body {
+    background: url(../plaatjes/achtergrond.png) no-repeat center center fixed;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+}
+
+.container{
+    padding-top: 40px;
+    width: 400px;
+}
+
+.label {
+    color: white;
+}

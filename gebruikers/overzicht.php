@@ -18,7 +18,6 @@
         $error = $_SESSION['ingelogd'];
         unset($_SESSION['ingelogd']);
     }
-
     $ingelogde_gebruiker = $user->gebruiker_ophalen_id($_SESSION['user_session']);
 
     // rolID van de gebruike ophalen
@@ -27,10 +26,19 @@
     // gebruikersrol ophalen doormiddel van een functie
     $rol = $user->gebruikers_rol($rolID);
 
+    $rol = $user->gebruikers_rol($rolID);
+    if ($rolID != 3) {
+        $_SESSION['flash'] = array(
+            'type' => 'danger',
+            'message' => 'Je hebt geen rechten om deze pagina te bezoeken!'
+        );
+        $user->redirect('../pakken/pietenpakken.php');
+    }
+
     // Pagina's
     //===============================================
     // limiet per pagina instellen
-    $limiet = 2;
+    $limiet = 4;
     // gebruikers ophalen uit de database
     $query = "SELECT * FROM gebruiker";
     $s = $dbh->prepare($query);
@@ -55,6 +63,11 @@
     $r->execute();
 
     $gebruikers = $r->fetchAll(PDO::FETCH_ASSOC);
+
+    if (isset($_GET['zoek-resulaten'])) {
+        $zoekterm = $_GET['zoek-resulaten'];
+        $gebruikers = $user->zoek_gebruikers($zoekterm);
+    }
 ?>
 <!doctype html>
 <html lang="en">
@@ -70,15 +83,15 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <script src="scripts/script.js"></script>
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Gebruikers</title>
+    <title>Gebruikers | overzicht</title>
 </head>
 <body>
 <div class="topnav">
-    <a href="pakken/pietenpakken.php">Pietenpakken</a>
-    <a href="pakken/sinterklaaspakken.php">Sinterklaaspakken</a>
+    <a href="../pakken/pietenpakken.php?pagina=1">Pietenpakken</a>
+    <a href="../pakken/sinterklaaspakken.php?pagina=1">Sinterklaaspakken</a>
     <?php if ($rolID == '3') { ?>
-        <a href="pakken/beschadigd.php">Beschadigd</a>
-        <a href="../gebruikers/overzicht.php?pagina=1">Gebruikers</a>
+        <a href="../pakken/beschadigd.php?pagina=1">Beschadigd</a>
+        <a class="active" href="../gebruikers/overzicht.php?pagina=1">Gebruikers</a>
     <?php } ?>
 </div>
 <div class="container">
@@ -86,12 +99,22 @@
         <div class="col-sm">
             <h2>Overzicht gebruikers</h2>
         </div>
-        <div class="col-sm">
-            <div class="input-group">
-                <input type="text" class="form-control" id="filter" onkeyup="filter_table()"
-                       placeholder="Zoek een gebruiker...">
+        <form action="overzicht.php?pagina=1" method="GET">
+            <div class="col-sm">
+                <div class="input-group">
+                    <input name="zoek-resulaten" type="text" class="form-control"
+                           placeholder="Zoek een gebruiker..."
+                           value="<?php echo isset($_GET['zoek-resulaten']) ? $zoekterm : '' ?>">
+                    <span class="input-group-btn">
+                    <button class="btn btn" type="submit"><img src="../plaatjes/zoeken.png" width="20"
+                                                               height="20"/></button>
+
+
+                </span>
+                </div>
+                <?php echo isset($_GET['zoek-resulaten']) ? '<a href="overzicht.php?pagina=1"> Terug naar overzicht</a>' : '' ?>
             </div>
-        </div>
+        </form>
     </div>
     <?php if (!empty($error)) { ?>
         <div class="alert alert-<?php echo $error['type']; ?> ">
@@ -108,20 +131,26 @@
         </tr>
         </thead>
         <tbody>
-        <?php foreach ($gebruikers as $gebruiker): ?>
-            <tr data-href="bewerken.php?id=<?php echo $gebruiker['gebruiker_id'] ?> ">
-                <td>
-                    <?php
-                        echo $gebruiker['voornaam'];
-                        echo !is_null($gebruiker['tussenvoegsel']) ? ' ' . $gebruiker['tussenvoegsel'] . ' ' : ' ';
-                        echo $gebruiker['achternaam'];
-                    ?>
-                </td>
-                <td> <?php echo $gebruiker['email'] ?> </td>
-                <td> <?php echo $gebruiker['telefoonnummer'] ?> </td>
-                <td> <?php echo $gebruiker['maat'] ?> </td>
+        <?php if (is_null($gebruikers)) { ?>
+            <tr>
+                <td>Geen gebruikers gevonden</td>
             </tr>
-        <?php endforeach; ?>
+        <?php } else { ?>
+            <?php foreach ($gebruikers as $gebruiker): ?>
+                <tr data-href="bewerken.php?id=<?php echo $gebruiker['gebruiker_id'] ?> ">
+                    <td>
+                        <?php
+                            echo $gebruiker['voornaam'];
+                            echo !is_null($gebruiker['tussenvoegsel']) ? ' ' . $gebruiker['tussenvoegsel'] . ' ' : ' ';
+                            echo $gebruiker['achternaam'];
+                        ?>
+                    </td>
+                    <td> <?php echo $gebruiker['email'] ?> </td>
+                    <td> <?php echo $gebruiker['telefoonnummer'] ?> </td>
+                    <td class="text-uppercase"> <?php echo $gebruiker['maat'] ?> </td>
+                </tr>
+            <?php endforeach;
+        } ?>
         </tbody>
     </table>
     <hr>
@@ -141,33 +170,11 @@
             <a href="../gebruikers/aanmaken.php">Gebruiker toevoegen</a>
         </div>
         <div class="right">
+            <a href="../gebruikers/mijn-account.php">Account</a>
             <a href="../login/uitloggen.php">Uitloggen</a>
         </div>
     </div>
 </div>
 </body>
 </html>
-
-<script>
-    $('tr[data-href]').on("click", function () {
-        document.location = $(this).data('href');
-    });
-
-    function filter_table() {
-        var input, filter, table, tr, td, i;
-        input = document.getElementById("filter");
-        filter = input.value.toUpperCase();
-        table = document.getElementById("gebruikersTabel");
-        tr = table.getElementsByTagName("tr");
-        for (i = 0; i < tr.length; i++) {
-            td = tr[i].getElementsByTagName("td")[1];
-            if (td) {
-                if (td.innerHTML.toUpperCase().indexOf(filter) > -1) {
-                    tr[i].style.display = "";
-                } else {
-                    tr[i].style.display = "none";
-                }
-            }
-        }
-    }
-</script>
+<script src="../scripts/script.js"></script>

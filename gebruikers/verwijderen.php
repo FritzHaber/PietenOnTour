@@ -18,7 +18,15 @@
     if (empty($gebruiker_id)){
         $_SESSION['flash'] = array(
             'type' => 'danger',
-            'message' => 'Pak niet gevonden!'
+            'message' => 'Deze gebruiker kan niet worden gevonden!'
+        );
+        $user->redirect('../gebruikers/overzicht.php');
+    }
+
+    if ($ingelogde_gebruiker['rol_id'] === $gebruiker_id){
+        $_SESSION['flash'] = array(
+            'type' => 'danger',
+            'message' => 'Je bent ingelogd met dit account en deze kan dus niet worden verwijderd!'
         );
         $user->redirect('../gebruikers/overzicht.php');
     }

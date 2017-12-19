@@ -1,0 +1,9 @@
+body {
+        background-image: url(achtergrond.png);
+              
+} 
+
+  .container{
+            padding-top: 40px;
+            width: 400px;
+        }
