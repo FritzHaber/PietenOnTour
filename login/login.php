@@ -7,7 +7,7 @@
 
     // checken als er is ingelogd
     if ($user->is_ingelogd()) {
-        $user->redirect('../index.php');
+        $user->redirect('../pakken/pietenpakken.php');
     }
 
     // zo niet, dan data uit het ingevulde formulier halen
