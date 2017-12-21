@@ -1,9 +1,4 @@
 <!DOCTYPE html>
-<!--
-To change this license header, choose License Headers in Project Properties.
-To change this template file, choose Tools | Templates
-and open the template in the editor.
--->
 <?php
     session_start();
     require_once '../connection/db_connectie.php';
@@ -20,7 +15,7 @@ and open the template in the editor.
             'type' => 'danger',
             'message' => 'Je hebt geen rechten om een gebruiker aan te maken!'
         );
-        $user->redirect('toevoegen.php');
+        $user->redirect('../pakken/pietenpakken.php');
     }
     $rolID = $gebruiker['rol_id'];
 
@@ -34,9 +29,10 @@ and open the template in the editor.
         unset($_SESSION['flash']);
     }
     if (isset($_POST['volgende'])) {
-        if (!empty($_POST['pakid'])) {      // && !empty($_POST['profiel_foto'])
+        if (!empty($_POST['pakid'])) {
             if (is_uploaded_file($_FILES["profiel_foto"]["tmp_name"])) {
-                $target_file = $target_dir . basename($_FILES["profiel_foto"]["name"]);
+                $imgfile = str_replace(" ", "_", pathinfo($_FILES["profiel_foto"]["name"], PATHINFO_BASENAME));
+                $target_file = $target_dir . $imgfile;
                 $imageFileType = pathinfo($target_file,PATHINFO_EXTENSION);
                 if($imageFileType != "jpg" && $imageFileType != "png" && $imageFileType != "jpeg") {
                     $_SESSION['flash'] = array(
@@ -44,30 +40,24 @@ and open the template in the editor.
                         'message' => 'Sorry, het bestand dat je hebt geupload is geen JPG, JPEG of PNG bestand.'
                     );
                     $user->redirect('toevoegen.php');
-                    //                exit;
                 }
-                // Check if file already exists
                 elseif (file_exists($target_file)) {
                     $_SESSION['flash'] = array(
                         'type' => 'danger',
                         'message' => 'Sorry, de naam van je foto bestaat al.'
                     );
                     $user->redirect('toevoegen.php');
-                    //                exit;
                 }
-                // Check file size
                 elseif ($_FILES["profiel_foto"]["size"] > 500000) {
                     $_SESSION['flash'] = array(
                         'type' => 'danger',
                         'message' => 'Sorry, je foto is te groot.'
                     );
                     $user->redirect('toevoegen.php');
-                    //                exit;
                 }
-                //de foto voldoet aan de eisen en mag geupload worden
                 else {
-                    $pak = $costume->nieuw_pak_details($_POST, $gebruiker);
-                    if (move_uploaded_file($_FILES["profiel_foto"]["tmp_name"], $target_file)){// verplaatst de foto naar uploads           !empty($pak) &&
+                    $pak = $costume->nieuw_pak_details($_POST, $gebruiker, $imgfile);
+                    if (move_uploaded_file($_FILES["profiel_foto"]["tmp_name"], $target_file)){
                         if ($_POST["type"]=="piet") {
                             $_SESSION['flash'] = array(
                                 'type' => 'success',
@@ -185,8 +175,9 @@ and open the template in the editor.
                 <div class="form-group row">
                     <label for="beschadigd" class="col-sm-3 col-form-label">Beschadigd</label>
                     <div class="col-sm-9">
-                        <input name="beschadigd" value="2" type="hidden" class="form-control" id="beschadigd">
-                        <input name="beschadigd" value="1" type="checkbox" class="form-control" id="beschadigd">
+<!--                        <input name="beschadigd" value="1" type="checkbox" class="form-control" id="beschadigd">-->
+                        <input name="beschadigd" value="1" type="hidden" class="form-control" id="beschadigd">
+                        <input name="beschadigd" value="2" type="checkbox" class="form-control" id="beschadigd">
                     </div>
                 </div>
                 <div class="form-group row">

@@ -58,6 +58,7 @@
     <link rel="stylesheet" href="../styling/footer.css">
     <link rel="stylesheet" href="../styling/nav-bar.css">
     <link rel="stylesheet" href="../styling/base.css">
+    <link rel="icon" href="../plaatjes/favicon.png" type="image/gif" sizes="16x16">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <style>
         img {
@@ -87,7 +88,7 @@
     <form name="aanmaken" method="POST" action="aanmaken.php?pakid=<?php echo $pak_id ?>" enctype="multipart/form-data">
         <!-- Informatie over het pak -->
         <div class="row">
-            <img src="<?php print($pak['foto_id']) ?>" class="img-responsive" width="200" height="250">
+            <img src="<?php print($pak['foto_id']) ?>" class="img-responsive">
             <p style="padding:0px 0px 150px 10px;">PakID: <?php print $pak['pak_id'] ?><br>
                 Maat: <?php print $pak['maat'] ?><br>
                 Kleur: <?php print $pak['kleur'] ?><br>
@@ -125,6 +126,7 @@
         <!-- Opmaak onderkant pagina -->
         <div class="footer">
             <div class="right">
+                <a href="../gebruikers/mijn-account.php">Account</a>
                 <a href="../login/uitloggen.php">Uitloggen</a>
             </div>
         </div>

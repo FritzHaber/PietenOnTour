@@ -2,7 +2,9 @@
     session_start();
     require_once '../connection/db_connectie.php';
     include_once '../user_classes.php';
+    include_once '../pak_classes.php';
     $user = new gebruiker($dbh);
+    $costume = new pak($dbh);
 
     // checken of de gebruiker is ingelogd
     if (!$user->is_ingelogd()) {
@@ -27,20 +29,12 @@
     // gebruikersrol ophalen doormiddel van een functie
     $rol = $user->gebruikers_rol($rolID);
 
-
-
-    if (isset($_GET['zoek-resulaten'])) {
-        $zoekterm = $_GET['zoek-resulaten'];
-        $pakken = $user->zoek_pakken($zoekterm, $type = 'piet');
-    }
-    
-    
- // Pagina's
+    // Pagina's
     //===============================================
     // limiet per pagina instellen
-    $limiet = 5;
+    $limiet = 6;
     // gebruikers ophalen uit de database
-    $query =            ("SELECT * FROM pak 
+    $query = ("SELECT * FROM pak 
                           JOIN status_pak 
                           ON pak.staat_id=status_pak.staat_id 
                           JOIN foto_pak 
@@ -56,7 +50,7 @@
     $aantal_paginas = ceil($aantal_resultaten / $limiet);
 
     // paginanummer ophalen
-  
+
     if (!isset($_GET['pagina'])) {
         $pagina_active = 1;
     } else {
@@ -64,14 +58,15 @@
     }
 
     $begin_limiet = ($pagina_active - 1) * $limiet;
-    $lijst =              "SELECT * FROM pak 
-                          JOIN status_pak 
-                          ON pak.staat_id=status_pak.staat_id 
-                          JOIN foto_pak 
-                          ON pak.pak_id=foto_pak.pak_id
-                          WHERE Type='piet' 
-                          ORDER BY pak.pak_id ASC LIMIT $begin_limiet, 
-                      $limiet";
+    $lijst = "SELECT * FROM pak 
+              JOIN status_pak 
+              ON pak.staat_id=status_pak.staat_id 
+              JOIN foto_pak 
+              ON pak.pak_id=foto_pak.pak_id
+              WHERE Type='piet' 
+              ORDER BY pak.pak_id ASC 
+              LIMIT $begin_limiet, 
+              $limiet";
 
     $r = $dbh->prepare($lijst);
     $r->execute();
@@ -80,9 +75,8 @@
 
     if (isset($_GET['zoek-resulaten'])) {
         $zoekterm = $_GET['zoek-resulaten'];
-        $gebruikers = $user->zoek_gebruikers($zoekterm);
+        $pakken = $costume->zoek_pakken($zoekterm, $type = 'piet');
     }
-
 ?>
 <!doctype html>
 <html lang="en">
@@ -95,15 +89,11 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="../styling/footer.css">
     <link rel="stylesheet" href="../styling/nav-bar.css">
+    <link rel="stylesheet" href="../styling/base.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="icon" href="../plaatjes/favicon.png" type="image/gif" sizes="16x16">
     <title>Overzicht | pietenpakken</title>
-    <style>
-        td img {
-            max-height: 125px;
-            max-width: 125px;
-        }
-    </style>
 </head>
 <body>
 <div class="topnav">
@@ -149,7 +139,6 @@
             <th>Kleur</th>
             <th>Beschadigd</th>
         </tr>
-
         </thead>
         <tbody>
         <?php if (empty($pakken)) { ?>
@@ -164,13 +153,14 @@
             </tr>
         <?php } else { ?>
             <?php foreach ($pakken as $pak): ?>
-<tr data-href="bewerken.php?id=<?php echo $pak['pak_id'] ?> ">                    <td><img src="<?php echo $pak['foto_id']; ?>" alt="..." class="img-thumbnail"></td>
+                <tr data-href="bewerken.php?id=<?php echo $pak['pak_id'] ?> ">
+                    <td><img src="../uploads/<?php echo $pak['foto_id']; ?>" alt="..." class="img-thumbnail"></td>
                     <td><?php print_r($pak['pak_id']); ?></td>
                     <td class="text-uppercase"><?php print_r($pak['maat']); ?></td>
-                    <td><?php print_r($pak['geslacht']); ?></td>
+                    <td class="text-uppercase"><?php print_r($pak['geslacht']); ?></td>
                     <td><?php print_r($pak['kleur']); ?></td>
                     <td><?php echo $pak['staat_id'] ==
-                        1 ? '<i class="fa fa-check"></i>' : '<i class="fa fa-close"></i>' ?></td>
+                        2 ? '<i class="fa fa-check"></i>' : '' ?></td>
                 </tr>
             <?php endforeach; ?>
         <?php } ?>
@@ -191,9 +181,12 @@
 </div>
 <div class="footer">
     <div class="left">
-        <a href="toevoegen.php">Pak toevoegen</a>
+        <?php if ($rolID == '3') { ?>
+            <a href="toevoegen.php">Pak toevoegen</a>
+        <?php } ?>
     </div>
     <div class="right">
+        <a href="../gebruikers/mijn-account.php">Account</a>
         <a href="../login/uitloggen.php">Uitloggen</a>
     </div>
 </div>

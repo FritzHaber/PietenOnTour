@@ -126,6 +126,8 @@
                     $functie
                 ));
 
+                $stmt = $this->db->prepare("INSERT INTO");
+
                 return $this->gebruiker_ophalen_id($this->db->lastInsertId());
 
 
@@ -177,11 +179,103 @@
                     $functie,
                     $gebruikerId
                 ));
+
+                $rollen = $this->vrijwilliger_rol_ophalen($gebruikerId);
+
+                if ($functie == 1) {
+                    foreach ($rollen as $rol) {
+                        if (isset($gegevens['piet'])) {
+                            $this->update_rol($gebruikerId, $status_rol = 'piet', $actief = 1);
+                        } else {
+                            $this->update_rol($gebruikerId, $status_rol = 'piet', $actief = 0);
+                        }
+                        if (isset($gegevens['sinterklaas'])) {
+                            $this->update_rol($gebruikerId, $status_rol = 'sinterklaas', $actief = 1);
+                        } else {
+                            $this->update_rol($gebruikerId, $status_rol = 'sinterklaas', $actief = 0);
+                        }
+                        if (isset($gegevens['schminker'])) {
+                            $this->update_rol($gebruikerId, $status_rol = 'schminker', $actief = 1);
+                        } else {
+                            $this->update_rol($gebruikerId, $status_rol = 'schminker', $actief = 0);
+                        }
+                    }
+                } else {
+                    foreach ($rollen as $rol) {
+                        $this->update_rol($gebruikerId, $status_rol = $rol['rol'], $actief = 0);
+                    }
+                }
+
             } catch (PDOException $e) {
                 return $error = array(
                     'type' => 'danger',
                     'message' => 'Dit e-mail adres is al in gebruik!'
                 );
+            }
+        }
+
+        public function update_rol($gebruiker_id, $rol, $actief) {
+            try {
+                $stmt = $this->db->prepare("UPDATE vrijwilliger_rol 
+                                                    SET actief = ?
+                                                    WHERE gebruiker_id = ?
+                                                    AND rol = ? ");
+                $stmt->execute(array($actief, $gebruiker_id, $rol));
+            } catch (PDOException $e) {
+                echo $e->getMessage();
+            }
+        }
+
+        public function verwijder_gebruiker_rol($gebruikerId, $rol) {
+            try {
+                $stmt = $this->db->prepare("DELETE FROM vrijwilliger_rol
+                                            WHERE gebruiker_id = ?
+                                             AND rol = ?");
+                $stmt->execute(array(
+                    $gebruikerId,
+                    $rol
+                ));
+
+            } catch (PDOException $e) {
+                echo $e->getMessage();
+            }
+        }
+
+        public function vrijwilliger_rol_ophalen($gebruiker_id) {
+            try {
+                $stmt = $this->db->prepare("SELECT * FROM 
+                                            vrijwilliger_rol 
+                                            WHERE gebruiker_id=:gebruiker_id");
+                $stmt->execute(array(':gebruiker_id' => $gebruiker_id));
+
+                return $stmt->fetchAll(PDO::FETCH_ASSOC);
+            } catch (PDOException $e) {
+                echo $e->getMessage();
+            }
+        }
+
+        public function vrijwilliger_rol_opslaan($gebruikerId) {
+            try {
+                $rollen = array(
+                    'piet',
+                    'sinterklaas',
+                    'schminker'
+                );
+
+                foreach ($rollen as $rol) {
+                    $stmt = "INSERT INTO vrijwilliger_rol(gebruiker_id, rol)
+                            VALUES(?, ?)
+                           
+                    ";
+
+                    $stmt = $this->db->prepare($stmt);
+                    $stmt->execute(array(
+                        $gebruikerId,
+                        $rol
+                    ));
+                }
+            } catch (PDOException $e) {
+                echo $e->getMessage();
             }
         }
 
@@ -217,7 +311,6 @@
                 echo $e->getMessage();
             }
         }
-
 
         public function wachtwoord_veranderen($wachtwoorden, $gebruiker_id) {
             try {

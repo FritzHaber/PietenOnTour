@@ -21,7 +21,7 @@
     $melding = $costume->ophalen_melding_pak($_GET['id']);
     // Controleert of er op de 'Opslaan' knop is gedrukt, updatet de melding
     if (isset($_POST["opslaan"])) {
-        $costume->wijzigen_melding($melding);
+        $costume->wijzigen_melding($melding, $melding['pak_id'], $gebruiker);
     }
     $status_id = $melding['status_id'];
 
@@ -38,6 +38,7 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <link rel="stylesheet" href="../styling/footer.css">
     <link rel="stylesheet" href="../styling/nav-bar.css">
+    <link rel="stylesheet" href="../styling/base.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 </head>
 <body>
@@ -56,25 +57,15 @@
     <form name="melding" method="POST" action="wijzigen.php?id=<?php echo $melding['melding_id']; ?>">
         <div class="row">
             <img src="<?php print($melding['13']) ?>" class="img-responsive" width="200" height="250">
-            <p>PakID: <?php print $melding['pak_id'] ?><br>
+            <p class="pak-info">PakID: <?php print $melding['pak_id'] ?><br>
                 Maat: <?php print $melding['maat'] ?><br>
                 Kleur: <?php print $melding['kleur'] ?><br>
                 Geslacht: <?php print $melding['geslacht'] ?></p>
-            <img src="<?php echo $melding['16']; ?>" alt="">
         </div>
 
         <div class="row">
             <div class="col-sm-6">
-                <div class="form-group row">
-                    <label for="voornaam" class="col-sm-3 col-form-label">Beschadigd</label>
-                    <div class="col-sm-9">
-                        <input class="form-control" type="checkbox" name="staat"
-                               value="2"<?php if (isset($melding['status_id']) && ($melding['status_id'] == 2)) {
-                            print("checked");
-                        } ?>>
-                    </div>
-                </div>
-
+                <br>
                 <div class="form-group row">
                     <label for="voornaam" class="col-sm-3 col-form-label">Schademelding</label>
                     <div class="col-sm-9">
@@ -105,6 +96,7 @@
                         <option <?php echo $status_id == 4 ? 'selected' : '' ?> value=4>Afgewezen</option>
                     </select>
                 </div>
+                <img width="200" height="270" src="<?php echo $melding['16']; ?>" alt="">
             </div>
         </div>
         <!-- Sla de gegevens op of annuleer -->
@@ -113,6 +105,7 @@
         <!-- Opmaak onderkant pagina -->
         <div class="footer">
             <div class="right">
+                <a href="../gebruikers/mijn-account.php">Account</a>
                 <a href="../login/uitloggen.php">Uitloggen</a>
             </div>
         </div>

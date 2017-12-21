@@ -38,6 +38,7 @@
           integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous">
     <link rel="stylesheet" href="../styling/footer.css">
     <link rel="stylesheet" href="../styling/login.css">
+    <link rel="icon" href="../plaatjes/favicon.png" type="image/gif" sizes="16x16">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <style>

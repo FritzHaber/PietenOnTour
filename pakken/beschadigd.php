@@ -2,7 +2,9 @@
     session_start();
     require_once '../connection/db_connectie.php';
     include_once '../user_classes.php';
+    include_once '../pak_classes.php';
     $user = new gebruiker($dbh);
+    $custume = new pak($dbh);
 
     // checken of de gebruiker is ingelogd
     if (!$user->is_ingelogd()) {
@@ -27,34 +29,27 @@
         $user->redirect('../pietenpakken.php');
     }
 
-
-
-    if (isset($_GET['zoek-resulaten'])) {
-        $zoekterm = $_GET['zoek-resulaten'];
-        $pakken = $user->zoek_beschadigde_pakken($zoekterm);
-    }
-    
-        
- // Pagina's
+    // Pagina's
     //===============================================
     // limiet per pagina instellen
     $limiet = 3;
-    // gebruikers ophalen uit de database
-    $query =             ("SELECT * FROM pak JOIN status_pak ON pak.staat_id= status_pak.staat_id
-                          JOIN foto_pak 
-                          ON pak.pak_id = foto_pak.pak_id 
-                          WHERE pak.staat_id = 1 
-                          ORDER BY pak.pak_id");
+
+    $query = ("SELECT * FROM pak 
+              JOIN status_pak 
+              ON pak.staat_id= status_pak.staat_id
+              JOIN foto_pak 
+              ON pak.pak_id = foto_pak.pak_id 
+              JOIN melding_pak
+              ON melding_pak.pak_id = pak.pak_id
+              WHERE pak.staat_id = 1 
+              AND melding_pak.oplossing is NULL
+              ORDER BY pak.pak_id");
     $s = $dbh->prepare($query);
     $s->execute();
 
-
-    // berekenen hoeveel pagina's er zijn
     $aantal_resultaten = $s->rowCount();
     $aantal_paginas = ceil($aantal_resultaten / $limiet);
 
-    // paginanummer ophalen
-  
     if (!isset($_GET['pagina'])) {
         $pagina_active = 1;
     } else {
@@ -62,11 +57,15 @@
     }
 
     $begin_limiet = ($pagina_active - 1) * $limiet;
-    $lijst = "SELECT * FROM pak JOIN status_pak ON pak.staat_id= status_pak.staat_id
-                          JOIN foto_pak 
-                          ON pak.pak_id = foto_pak.pak_id 
-                          WHERE pak.staat_id = 1 
-                          ORDER BY pak.pak_id ASC LIMIT $begin_limiet, 
+    $lijst = "SELECT * FROM pak 
+              JOIN status_pak ON pak.staat_id= status_pak.staat_id
+              JOIN foto_pak 
+              ON pak.pak_id = foto_pak.pak_id 
+              JOIN melding_pak
+              ON melding_pak.pak_id = pak.pak_id
+              WHERE pak.staat_id = 2 
+              AND melding_pak.oplossing is NULL
+              ORDER BY pak.pak_id ASC LIMIT $begin_limiet, 
                       $limiet";
 
     $r = $dbh->prepare($lijst);
@@ -76,7 +75,7 @@
 
     if (isset($_GET['zoek-resulaten'])) {
         $zoekterm = $_GET['zoek-resulaten'];
-        $gebruikers = $user->zoek_gebruikers($zoekterm);
+        $pakken = $custume->zoek_beschadigde_pakken($zoekterm);
     }
 ?>
 <!doctype html>
@@ -89,15 +88,11 @@
           integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous">
     <link rel="stylesheet" href="../styling/footer.css">
     <link rel="stylesheet" href="../styling/nav-bar.css">
+    <link rel="stylesheet" href="../styling/base.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Beschadigde pakken</title>
-    <style>
-        td img {
-            max-height: 125px;
-            max-width: 125px;
-        }
-    </style>
+    <link rel="icon" href="../plaatjes/favicon.png" type="image/gif" sizes="16x16">
+    <title>Overzicht | Beschadigde pakken</title>
 </head>
 <body>
 <div class="topnav">
@@ -128,6 +123,11 @@
             </div>
         </form>
     </div>
+    <?php if (!empty($error)) { ?>
+        <div class="alert alert-<?php echo $error['type']; ?> ">
+            <?php echo $error['message']; ?>
+        </div>
+    <?php } ?>
     <table class="table">
         <thead>
         <tr>
@@ -152,8 +152,8 @@
             </tr>
         <?php } else { ?>
             <?php foreach ($pakken as $pak): ?>
-<tr data-href="bewerken.php?id=<?php echo $pak['pak_id'] ?> ">                    <td><img src="<?php echo $pak['foto_id']; ?>" alt="..." class="img-thumbnail"></td>
-                    <td><img src="<?php echo $pak['foto_id']; ?>" alt="..." class="img-thumbnail"></td>
+                <tr data-href="../melding/wijzigen.php?id=<?php echo $pak['melding_id'] ?> ">
+                    <td><img src="../uploads/<?php echo $pak['foto_id']; ?>" alt="..." class="img-thumbnail"></td>
                     <td><?php print_r($pak['pak_id']); ?></td>
                     <td class="text-uppercase"><?php print_r($pak['maat']); ?></td>
                     <td><?php print_r($pak['geslacht']); ?></td>
@@ -165,7 +165,6 @@
 
         </tbody>
     </table>
-    <hr>
     <nav aria-label="Page navigation example">
         <ul class="pagination justify-content-center">
             <?php
@@ -177,20 +176,17 @@
                 <?php endfor; ?>
         </ul>
     </nav>
+
 </div>
 <div class="footer">
     <div class="left">
         <a href="#">Pak toevoegen</a>
     </div>
     <div class="right">
+        <a href="../gebruikers/mijn-account.php">Account</a>
         <a href="../login/uitloggen.php">Uitloggen</a>
     </div>
 </div>
 </body>
-<script>
-    setTimeout(function () {
-        $('.alert').fadeOut('fast');
-    }, 5000); // <-- time in milliseconds
-</script>
 </html>
 <script src="../scripts/script.js"></script>

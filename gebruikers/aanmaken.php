@@ -81,7 +81,8 @@
     <link rel="stylesheet" href="../styling/footer.css">
     <link rel="stylesheet" href="../styling/nav-bar.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-    <title>Document</title>
+    <link rel="icon" href="../plaatjes/favicon.png" type="image/gif" sizes="16x16">
+    <title>Toevoegen | gebruiker</title>
 </head>
 <body>
 <div class="topnav">

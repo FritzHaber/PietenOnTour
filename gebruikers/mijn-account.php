@@ -2,7 +2,9 @@
     session_start();
     require_once '../connection/db_connectie.php';
     include_once '../user_classes.php';
+    include_once '../booking_classes.php';
     $user = new gebruiker($dbh);
+    $booking = new booking($dbh);
 
     $gebruiker = $user->gebruiker_ophalen_id($_SESSION['user_session']);
     $rolID = $gebruiker['rol_id'];
@@ -14,6 +16,11 @@
     if (isset($_SESSION['gebruiker_aangemaakt'])) {
         $error = $_SESSION['gebruiker_aangemaakt'];
         unset($_SESSION['gebruiker_aangemaakt']);
+    }
+
+    if (isset($_SESSION['flash'])) {
+        $error = $_SESSION['flash'];
+        unset($_SESSION['flash']);
     }
 
     if (isset($_POST['wachtwoord-opslaan'])) {
@@ -49,6 +56,18 @@
             );
         }
     }
+
+    if (isset($_POST['aanmelden'])) {
+        $error = $booking->aanmelden_tijdsblok($_POST, $gebruiker);
+    }
+
+    $tijdsblokken = $booking->ophalen_tijdblokken();
+    $inschrijvingen = $booking->inschrijvingen_ophalen_per_gebruiker($gebruiker);
+
+//    $obj = $booking->tijdblokken_inschrijvingen();
+//    echo '<pre>';
+//    print_r($obj);
+//    exit;
 ?>
 <!doctype html>
 <html lang="en">
@@ -71,10 +90,13 @@
             integrity="sha384-alpBpkh1PFOepccYVYDB4do5UnbKysX5WZXm3XxPqe5iKTfUKjNkCk9SaVuEZflJ"
             crossorigin="anonymous"></script>
     <link rel="stylesheet" href="../styling/base.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <script src="../scripts/script.js"></script>
     <link rel="stylesheet" href="../styling/nav-bar.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-    <title>Pak bewerken</title>
+    <link rel="icon" href="../plaatjes/favicon.png" type="image/gif" sizes="16x16">
+    <title>Mijn account | bewerken</title>
 </head>
 <body>
 <div class="topnav">
@@ -87,18 +109,24 @@
 </div>
 
 <div class="container">
-    <ul class="nav nav-tabs" id="myTab" role="tablist">
+    <ul class="nav nav-tabs" id="tab" role="tablist">
         <li class="nav-item">
-            <a class="nav-link active" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home"
+            <a class="nav-link active" id="profile-tab" data-toggle="tab" href="#account" role="tab"
+               aria-controls="account"
                aria-selected="true">Account gegevens</a>
         </li>
         <li class="nav-item">
             <a class="nav-link" id="profile-tab" data-toggle="tab" href="#profile" role="tab" aria-controls="profile"
                aria-selected="false">Wachtwoord</a>
         </li>
+        <li class="nav-item">
+            <a class="nav-link" id="profile-tab" data-toggle="tab" href="#beschikbaar" role="tab"
+               aria-controls="beschikbaar"
+               aria-selected="false">Beschikbaarheid</a>
+        </li>
     </ul>
-    <div class="tab-content" id="myTabContent">
-        <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
+    <div class="tab-content" id="tab">
+        <div class="tab-pane fade show active" id="account" role="tabpanel" aria-labelledby="profile-tab">
             <h1>
                 Account bewerken
             </h1>
@@ -161,7 +189,7 @@
                                     else{ ?>
                                 <option<?php
                                     echo 'selected="selected"';
-                                    } ?> value="3">Admin
+                                    } ?> value="">Admin
                                 </option>
                             </select>
                         </div>
@@ -250,10 +278,100 @@
                 <button name="wachtwoord-opslaan" class="btn btn-primary">Wachtwoord opslaan</button>
             </form>
         </div>
+        <div class="tab-pane fade" id="beschikbaar" role="tabpanel" aria-labelledby="profile-tab">
+            <h1>
+                Beschikbaarheid doorgeven
+            </h1>
+            <hr>
+            <div class="row">
+                <div class="col-sm-6">
+                    <div id="accordion" role="tablist">
+                        <?php if (empty($tijdsblokken)) { ?>
+                            Er zijn nog geen tijdblokken beschikbaar
+                        <?php } else { ?>
+                            <?php foreach ($tijdsblokken as $key => $tijdsblok) { ?>
+                                <div class="card">
+                                    <div class="card-header" role="tab" id="heading<?php echo $key; ?>">
+                                        <h5 class="mb-0">
+                                            <a class="collapsed" data-toggle="collapse"
+                                               href="#collapse<?php echo $key; ?>"
+                                               aria-expanded="false" aria-controls="collapse<?php echo $key; ?>">
+                                                <?php echo date('d-m-Y', strtotime($tijdsblok['begin_tijd'])); ?>
+                                            </a>
+                                        </h5>
+                                    </div>
+                                    <div id="collapse<?php echo $key; ?>" class="collapse" role="tabpanel"
+                                         aria-labelledby="heading<?php echo $key; ?>" data-parent="#accordion">
+
+                                        <div class="card-body">
+                                            <h3><?php echo $tijdsblok['tijdblok_naam']; ?></h3>
+                                            <p>
+                                                <?php echo 'Dit tijdblok loopt van ' .
+                                                    date('H:i', strtotime($tijdsblok['begin_tijd'])) . ' tot ';
+                                                    echo date('H:i', strtotime($tijdsblok['eind_tijd'])); ?>
+                                            </p>
+                                            <form action="mijn-account.php" method="POST">
+                                                <input type="hidden" name="id" id="id"
+                                                       value="<?php echo $tijdsblok['tijdblok_id'] ?>"/>
+                                                <button name="aanmelden" class="btn btn-primary">Aanmelden voor dit
+                                                    tijdsblok
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            <?php } ?>
+                        <?php } ?>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <h3>Ingeschreven voor</h3>
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            <th scope="col">Datum</th>
+                            <th scope="col">Van</th>
+                            <th scope="col">Tot</th>
+                            <th scope="col">Bevestigd</th>
+                            <th scope="col">Verwijder</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <?php
+                            if (empty($inschrijvingen)) { ?>
+                                <tr>
+                                    <td>Je hebt nog geen inschrijvingen</td>
+                                </tr>
+                            <?php } else { ?>
+                                <?php foreach ($inschrijvingen as $inschrijving) { ?>
+                                    <tr>
+                                        <th scope="row"> <?php echo date('d-m-Y', strtotime($inschrijving['begin_tijd'])); ?></th>
+                                        <td><?php echo date('H:i', strtotime($inschrijving['begin_tijd'])) ?></td>
+                                        <td><?php echo date('H:i', strtotime($inschrijving['eind_tijd'])) ?></td>
+                                        <td><?php echo $inschrijving['bevestigd'] == 0 ? 'Nee' : 'Ja' ?></td>
+                                        <td>
+                                            <?php if ($inschrijving['bevestigd'] == 0) {
+                                                echo '<a href="verwijder_inschrijving.php?id=' .
+                                                    $inschrijving['inschrijving_id'] .
+                                                    '"><i class="material-icons delete">delete</i></a>';
+                                            } ?>
+                                        </td>
+                                    </tr>
+                                <?php } ?>
+                            <?php } ?>
+                        </tbody>
+
+                    </table>
+                </div>
+            </div>
+        </div>
     </div>
     <div class="footer">
         <div class="left">
-            <a href="../gebruikers/aanmaken.php">Gebruiker aanmaken</a>
+            <?php if ($rolID == '3') { ?>
+                <a href="../pakken/toevoegen.php">Pak toevoegen</a>
+                <a href="aanmaken.php">Gebruiker aanmaken</a>
+            <?php } ?>
         </div>
         <div class="right">
             <a href="mijn-account.php">Account</a>

@@ -4,9 +4,14 @@ body {
     font-weight: 500;
 }
 
+.container{
+    padding-bottom:80px;
+}
+
 .page-item.active .page-link {
     background-color: #4CAF50;
     border-color: #4CAF50;
+    z-index: 99;
 }
 
 .page-link {
@@ -21,4 +26,13 @@ body {
 td img {
     max-height: 125px;
     max-width: 125px;
+}
+
+img {
+    max-height: 125px;
+    max-width: 125px;
+}
+
+.invisible{
+    display: none;
 }

@@ -81,7 +81,8 @@
     <link rel="stylesheet" href="../styling/base.css">
     <link rel="stylesheet" href="../styling/nav-bar.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-    <script src="scripts/script.js"></script>
+    <link rel="icon" href="../plaatjes/favicon.png" type="image/gif" sizes="16x16">
+    <script src="../scripts/script.js"></script>
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Gebruikers | overzicht</title>
 </head>
@@ -104,7 +105,7 @@
                 <div class="input-group">
                     <input name="zoek-resulaten" type="text" class="form-control"
                            placeholder="Zoek een gebruiker..."
-                           value="<?php echo isset($_GET['zoek-resulaten']) ? $zoekterm : '' ?>">
+                           value="<?php echo isset($_GET['zoek-resulaten']) ? strip_tags($zoekterm) : '' ?>">
                     <span class="input-group-btn">
                     <button class="btn btn" type="submit"><img src="../plaatjes/zoeken.png" width="20"
                                                                height="20"/></button>

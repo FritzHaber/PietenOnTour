@@ -6,6 +6,7 @@
 
     $gebruikerId = $_GET['id'];
     $gebruiker = $user->gebruiker_ophalen_id($gebruikerId);
+    $rollen = $user->vrijwilliger_rol_ophalen($gebruikerId);
     $ingelogde_gebruiker = $user->gebruiker_ophalen_id($_SESSION['user_session']);
     $rolID = $ingelogde_gebruiker['rol_id'];
 
@@ -32,6 +33,8 @@
         ) {
             if (filter_var($_POST['mail'], FILTER_VALIDATE_EMAIL)) {
                 $gebruiker = $user->gebruiker_bewerken($_POST, $gebruikerId);
+
+                $rollen = $user->vrijwilliger_rol_ophalen($gebruikerId);
                 if (isset($gebruiker['type'])) {
                     $error = $gebruiker;
                     $gebruiker = $user->gebruiker_ophalen_id($gebruikerId);
@@ -72,6 +75,7 @@
     <script src="../scripts/script.js"></script>
     <link rel="stylesheet" href="../styling/nav-bar.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <link rel="icon" href="../plaatjes/favicon.png" type="image/gif" sizes="16x16">
     <title>Gebruiker '<?php echo $gebruikerId ?>' bewerken</title>
 </head>
 <body>
@@ -194,6 +198,24 @@
                                type="number" class="form-control" id="telefoon">
                     </div>
                 </div>
+                <div <?php if ($gebruiker['rol_id'] != "1") {
+                    echo 'class="invisible"';
+                } ?> id="extra_rol">
+                    <b>Extra rollen voor de vrijwilliger</b>
+                    <hr>
+                    <?php foreach ($rollen as $rol) { ?>
+                        <div class="form-group row">
+                            <label for="<?php echo $rol['rol'] ?>"
+                                   class="col-sm-3 col-form-label"><?php echo $rol['rol'] ?></label>
+                            <div class="col-sm-9">
+                                <input name="<?php echo $rol['rol'] ?>"
+                                    <?php echo $rol['actief'] == 1 ? 'checked' : '' ?>
+                                       value="<?php echo $rol['rol'] ?>" type="checkbox" class="form-control"
+                                       id="<?php echo $rol['rol'] ?>">
+                            </div>
+                        </div>
+                    <?php } ?>
+                </div>
             </div>
         </div>
         <button name="opslaan" class="btn btn-primary">Gebruiker bewerken</button>
@@ -201,7 +223,9 @@
     <div class="footer">
         <div class="left">
             <a href="../gebruikers/aanmaken.php">Gebruiker aanmaken</a>
-            <a href="../gebruikers/verwijderen.php?id=<?php echo $gebruikerId; ?>" onclick="return confirm('Weet je zeker dat je deze gebruiker wil verwijderen?')">Deze gebruiker verwijderen</a>
+            <a href="../gebruikers/verwijderen.php?id=<?php echo $gebruikerId; ?>"
+               onclick="return confirm('Weet je zeker dat je deze gebruiker wil verwijderen?')">Deze gebruiker
+                verwijderen</a>
         </div>
         <div class="right">
             <a href="../gebruikers/mijn-account.php">Account</a>
@@ -211,3 +235,14 @@
 </div>
 </body>
 </html>
+<script>
+    document.getElementById('functie').addEventListener('change', function () {
+        var style = this.value == 1 ? 'block' : 'none';
+        document.getElementById('extra_rol').style.display = style;
+        if (style == 1) {
+            document.getElementById('extra_rol').classList.add('invisible')
+        } else {
+            document.getElementById('extra_rol').classList.remove('invisible')
+        }
+    });
+</script>

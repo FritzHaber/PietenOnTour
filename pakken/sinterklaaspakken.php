@@ -2,7 +2,9 @@
     session_start();
     require_once '../connection/db_connectie.php';
     include_once '../user_classes.php';
+    include_once '../pak_classes.php';
     $user = new gebruiker($dbh);
+    $costume = new pak($dbh);
 
     // checken of de gebruiker is ingelogd
     if (!$user->is_ingelogd()) {
@@ -22,26 +24,27 @@
     // gebruikersrol ophalen doormiddel van een functie
     $rol = $user->gebruikers_rol($rolID);
 
-    if (isset($_GET['zoek-resulaten'])) {
-        $zoekterm = $_GET['zoek-resulaten'];
-        $pakken = $user->zoek_pakken($zoekterm, $type = 'sinterklaas');
-    }
-// Pagina's
+    // Pagina's
     //===============================================
     // limiet per pagina instellen
-    $limiet = 5;
+    $limiet = 4;
     // gebruikers ophalen uit de database
-    $query = ("SELECT * FROM pak JOIN status_pak ON pak.staat_id=status_pak.staat_id JOIN foto_pak ON pak.pak_id=foto_pak.pak_id WHERE Type='sinterklaas' ORDER BY pak.pak_id");
+    $query = ("SELECT * FROM pak 
+              JOIN status_pak 
+              ON pak.staat_id=status_pak.staat_id 
+              JOIN foto_pak 
+              ON pak.pak_id=foto_pak.pak_id 
+              WHERE Type='sinterklaas' 
+              ORDER BY pak.pak_id");
     $s = $dbh->prepare($query);
     $s->execute();
-
 
     // berekenen hoeveel pagina's er zijn
     $aantal_resultaten = $s->rowCount();
     $aantal_paginas = ceil($aantal_resultaten / $limiet);
 
     // paginanummer ophalen
-  
+
     if (!isset($_GET['pagina'])) {
         $pagina_active = 1;
     } else {
@@ -49,7 +52,14 @@
     }
 
     $begin_limiet = ($pagina_active - 1) * $limiet;
-    $lijst = "SELECT * FROM pak JOIN status_pak ON pak.staat_id=status_pak.staat_id JOIN foto_pak ON pak.pak_id=foto_pak.pak_id WHERE Type='sinterklaas' ORDER BY pak.pak_id ASC LIMIT $begin_limiet, 
+    $lijst = "SELECT * FROM pak 
+              JOIN status_pak 
+              ON pak.staat_id=status_pak.staat_id 
+              JOIN foto_pak 
+              ON pak.pak_id=foto_pak.pak_id
+              WHERE Type='sinterklaas' 
+              ORDER BY pak.pak_id 
+              ASC LIMIT $begin_limiet, 
                       $limiet";
 
     $r = $dbh->prepare($lijst);
@@ -59,9 +69,8 @@
 
     if (isset($_GET['zoek-resulaten'])) {
         $zoekterm = $_GET['zoek-resulaten'];
-        $gebruikers = $user->zoek_gebruikers($zoekterm);
+        $pakken = $costume->zoek_pakken($zoekterm, $type = 'sinterklaas');
     }
-
 ?>
 <!doctype html>
 <html lang="en">
@@ -72,16 +81,13 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css"
           integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous">
     <link rel="stylesheet" href="../styling/footer.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="../styling/nav-bar.css">
+    <link rel="stylesheet" href="../styling/base.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <link rel="icon" href="../plaatjes/favicon.png" type="image/gif" sizes="16x16">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Overzicht | sinterklaaspakken</title>
-    <style>
-        td img {
-            max-height: 125px;
-            max-width: 125px;
-        }
-    </style>
 </head>
 <body>
 <div class="topnav">
@@ -106,11 +112,17 @@
                     <span class="input-group-btn">
                     <button class="btn btn" type="submit"><img src="../plaatjes/zoeken.png" width="20"
                                                                height="20"/></button>
-                        <?php echo isset($_GET['zoek-resulaten']) ? '<a href="sinterklaaspakken.php?pagina=1"> Terug naar overzicht</a>' : '' ?>
-                         </span>
+                </span>
                 </div>
+                <?php echo isset($_GET['zoek-resulaten']) ? '<a href="sinterklaaspakken.php?pagina=1"> Terug naar overzicht</a>' : '' ?>
+            </div>
         </form>
     </div>
+    <?php if (!empty($error)) { ?>
+        <div class="alert alert-<?php echo $error['type']; ?> ">
+            <?php echo $error['message']; ?>
+        </div>
+    <?php } ?>
     <table class="table">
         <thead>
         <tr>
@@ -121,12 +133,12 @@
             <th>Kleur</th>
             <th>Beschadigd</th>
         </tr>
-
         </thead>
         <tbody>
         <?php if (empty($pakken)) { ?>
             <tr>
-                <td>Er zijn geen sinterklaaspakken gevonden!</td>
+                <td>Er zijn geen Sinterklaaspakken gevonden!</td>
+                <td></td>
                 <td></td>
                 <td></td>
                 <td></td>
@@ -135,18 +147,18 @@
             </tr>
         <?php } else { ?>
             <?php foreach ($pakken as $pak): ?>
-<tr data-href="bewerken.php?id=<?php echo $pak['pak_id'] ?> ">                    <td><img src="<?php echo $pak['foto_id']; ?>" alt="..." class="img-thumbnail"></td>
-                    <td><img src="<?php echo $pak['foto_id']; ?>" alt="..." class="img-thumbnail"></td>
+                <tr data-href="bewerken.php?id=<?php echo $pak['pak_id'] ?> ">
+                    <td><img src="../uploads/<?php echo $pak['foto_id']; ?>" alt="..." class="img-thumbnail"></td>
                     <td><?php print_r($pak['pak_id']); ?></td>
                     <td class="text-uppercase"><?php print_r($pak['maat']); ?></td>
-                    <td><?php print_r($pak['geslacht']); ?></td>
+                    <td class="text-uppercase"><?php print_r($pak['geslacht']); ?></td>
                     <td><?php print_r($pak['kleur']); ?></td>
                     <td><?php echo $pak['staat_id'] ==
-                        1 ? '<i class="fa fa-check"></i>' : '<i class="fa fa-close"></i>' ?></td>
+                        2 ? '<i class="fa fa-check"></i>' : '' ?></td>
                 </tr>
             <?php endforeach; ?>
         <?php } ?>
-       </tbody>
+        </tbody>
     </table>
     <hr>
     <nav aria-label="Page navigation example">
@@ -163,9 +175,12 @@
 </div>
 <div class="footer">
     <div class="left">
-        <a href="#">Pak toevoegen</a>
+        <?php if ($rolID == '3') { ?>
+            <a href="toevoegen.php">Pak toevoegen</a>
+        <?php } ?>
     </div>
     <div class="right">
+        <a href="../gebruikers/mijn-account.php">Account</a>
         <a href="../login/uitloggen.php">Uitloggen</a>
     </div>
 </div>
@@ -175,6 +190,5 @@
         $('.alert').fadeOut('fast');
     }, 5000); // <-- time in milliseconds
 </script>
-</html>
 </html>
 <script src="../scripts/script.js"></script>
