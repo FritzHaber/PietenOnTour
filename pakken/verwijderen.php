@@ -9,18 +9,18 @@
     $rol_id = $ingelogde_gebruiker['rol_id'];
     $gebruiker = $user->gebruiker_ophalen_id($_SESSION['user_session']);
 
-    if ($rol_id !== '3') {
+    if ($rol_id !== 3) {
         $_SESSION['flash'] = array(
             'type' => 'danger',
             'message' => 'Je hebt geen rechten om een gebruiker te verwijderen!'
         );
-        $user->redirect('../index.php');
+        $user->redirect('../pakken/pietenpakken.php?pagina=1');
     } elseif (empty($pak_id)){
         $_SESSION['flash'] = array(
             'type' => 'danger',
             'message' => 'Pak niet gevonden!'
         );
-        $user->redirect('../pakken/overzicht.php');
+        $user->redirect('../pakken/pietenpakken.php?pagina=1');
     } else {
         $pak = $costume->pak_ophalen_pakid($pak_id);
 

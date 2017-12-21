@@ -70,11 +70,13 @@
 <body>
 <!-- Navigatiebar -->
 <div class="topnav">
-    <a class="active" href="../pakken/pietenpakken.php">Pietenpakken</a>
-    <a href="../pakken/sinterklaaspakken.php">Sinterklaaspakken</a>
-    <a href="../pakken/beschadigd.php">Beschadigd</a>
-    <?php if ($rol_id == 3) { ?>
-        <a href="../gebruikers/overzicht.php">Gebruikers</a>
+    <a class="active" href="../pakken/pietenpakken.php?pagina=1">Pietenpakken</a>
+    <a href="../pakken/sinterklaaspakken.php?pagina=1">Sinterklaaspakken</a>
+    <?php if ($rol_id > 1) { ?>
+        <a href="../pakken/beschadigd.php?pagina=1">Beschadigd</a>
+    <?php } ?>
+    <?php if ($rolID == 3) { ?>
+        <a href="../gebruikers/overzicht.php?pagina=1">Gebruikers</a>
     <?php } ?>
 </div>
 <div class="container">

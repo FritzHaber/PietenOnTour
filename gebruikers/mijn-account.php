@@ -10,7 +10,7 @@
     $rolID = $gebruiker['rol_id'];
 
     if (empty($gebruiker)) {
-        $user->redirect('../index.php');
+        $user->redirect('../pakken/pietenpakken.php?pagina=1');
     }
 
     if (isset($_SESSION['gebruiker_aangemaakt'])) {
@@ -102,10 +102,12 @@
 <div class="topnav">
     <a href="../pakken/pietenpakken.php?pagina=1">Pietenpakken</a>
     <a href="../pakken/sinterklaaspakken.php?pagina=1">Sinterklaaspakken</a>
-    <?php if ($rolID == '3') { ?>
+    <?php if ($rolID > 1) { ?>
         <a href="../pakken/beschadigd.php?pagina=1">Beschadigd</a>
-        <a href="../gebruikers/overzicht.php?pagina=1">Gebruikers</a>
-    <?php } ?>
+    <?php } ?>    
+    <?php if ($rolID == 3) { ?>
+        <a class="active" href="../gebruikers/overzicht.php?pagina=1">Gebruikers</a>
+    <?php } ?>    
 </div>
 
 <div class="container">
@@ -180,6 +182,9 @@
                             <select name="functie" class="form-control col-sm-9" id="functie">
                                 <option <?php if ($gebruiker['rol_id'] == "1") {
                                     echo 'selected="selected"';
+                                    ?> value="1">Vrijwilliger 
+                                </option>
+                                <?php
                                 } elseif ($gebruiker['rol_id'] == "2") { ?>
                                     <option<?php if ($gebruiker['rol_id'] == "2") {
                                         echo 'selected="selected"';
@@ -187,7 +192,7 @@
                                     </option> <?php
                                 }
                                     else{ ?>
-                                <option<?php
+                                <option <?php
                                     echo 'selected="selected"';
                                     } ?> value="">Admin
                                 </option>

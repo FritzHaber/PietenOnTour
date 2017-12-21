@@ -10,12 +10,12 @@
 
     $gebruiker = $user->gebruiker_ophalen_id($_SESSION['user_session']);
 
-    if ($gebruiker['rol_id'] != 3) {
+    if ($gebruiker['rol_id'] == 1) {
         $_SESSION['flash'] = array(
             'type' => 'danger',
-            'message' => 'Je hebt geen rechten om een gebruiker aan te maken!'
+            'message' => 'Je hebt geen rechten om een pak aan te maken!'
         );
-        $user->redirect('../pakken/pietenpakken.php');
+        $user->redirect('../pakken/pietenpakken.php?pagina=1');
     }
     $rolID = $gebruiker['rol_id'];
 
@@ -120,11 +120,13 @@
 </head>
 <body>
 <div class="topnav">
-    <a class="active" href="pietenpakken.php">Pietenpakken</a>
-    <a href="sinterklaaspakken.php">Sinterklaaspakken</a>
-    <?php if ($rolID == '3') { ?>
-        <a href="beschadigd.php">Beschadigd</a>
-        <a href="../gebruikers/overzicht.php">Gebruikers</a>
+    <a class="active" href="pietenpakken.php?pagina=1">Pietenpakken</a>
+    <a href="sinterklaaspakken.php?pagina=1">Sinterklaaspakken</a>
+    <?php if ($rolID > 1) { ?>
+        <a href="beschadigd.php?pagina=1">Beschadigd</a>
+    <?php } ?>
+    <?php if ($rolID == 3) { ?>
+        <a href="../gebruikers/overzicht.php?pagina=1">Gebruikers</a>
     <?php } ?>
 </div>
 <div class="container">

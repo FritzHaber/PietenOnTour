@@ -27,13 +27,14 @@
     $rol = $user->gebruikers_rol($rolID);
 
     $rol = $user->gebruikers_rol($rolID);
-    if ($rolID != 3) {
-        $_SESSION['flash'] = array(
-            'type' => 'danger',
-            'message' => 'Je hebt geen rechten om deze pagina te bezoeken!'
-        );
-        $user->redirect('../pakken/pietenpakken.php');
-    }
+    
+//    if ($rolID != 3) {
+//        $_SESSION['flash'] = array(
+//            'type' => 'danger',
+//            'message' => 'Je hebt geen rechten om deze pagina te bezoeken!'
+//        );
+//        $user->redirect('../pakken/pietenpakken.php');
+//    }
 
     // Pagina's
     //===============================================
@@ -90,8 +91,10 @@
 <div class="topnav">
     <a href="../pakken/pietenpakken.php?pagina=1">Pietenpakken</a>
     <a href="../pakken/sinterklaaspakken.php?pagina=1">Sinterklaaspakken</a>
-    <?php if ($rolID == '3') { ?>
+    <?php if ($rolID > 1) { ?>
         <a href="../pakken/beschadigd.php?pagina=1">Beschadigd</a>
+    <?php } ?>    
+    <?php if ($rolID == 3) { ?>
         <a class="active" href="../gebruikers/overzicht.php?pagina=1">Gebruikers</a>
     <?php } ?>
 </div>

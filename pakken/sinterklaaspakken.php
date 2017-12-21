@@ -93,8 +93,10 @@
 <div class="topnav">
     <a href="../pakken/pietenpakken.php?pagina=1">Pietenpakken</a>
     <a class="active" href="../pakken/sinterklaaspakken.php?pagina=1">Sinterklaaspakken</a>
-    <?php if ($rolID == '3') { ?>
+    <?php if ($rolID > 1) { ?>
         <a href="../pakken/beschadigd.php?pagina=1">Beschadigd</a>
+    <?php } ?>
+     <?php if ($rolID == 3) { ?>
         <a href="../gebruikers/overzicht.php?pagina=1">Gebruikers</a>
     <?php } ?>
 </div>
@@ -175,7 +177,7 @@
 </div>
 <div class="footer">
     <div class="left">
-        <?php if ($rolID == '3') { ?>
+        <?php if ($rolID > 1) { ?>
             <a href="toevoegen.php">Pak toevoegen</a>
         <?php } ?>
     </div>

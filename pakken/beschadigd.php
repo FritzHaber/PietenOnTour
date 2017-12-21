@@ -20,13 +20,13 @@
 
     // rolID van de gebruike ophalen
     $rolID = $ingelogde_gebruiker['rol_id'];
-
-    if ($rolID != 3) {
+    
+    if ($rolID == 1) {
         $_SESSION['flash'] = array(
             'type' => 'danger',
             'message' => 'Je hebt geen rechten om deze pagina te bezoeken!'
         );
-        $user->redirect('../pietenpakken.php');
+        $user->redirect('../pakken/pietenpakken.php?pagina=1');
     }
 
     // Pagina's
@@ -98,8 +98,10 @@
 <div class="topnav">
     <a href="../pakken/pietenpakken.php?pagina=1">Pietenpakken</a>
     <a href="../pakken/sinterklaaspakken.php?pagina=1">Sinterklaaspakken</a>
-    <?php if ($rolID == '3') { ?>
+    <?php if ($rolID > 1) { ?>
         <a class="active" href="../pakken/beschadigd.php?pagina=1">Beschadigd</a>
+    <?php } ?>
+    <?php if ($rolID = 3) { ?>
         <a href="../gebruikers/overzicht.php?pagina=1">Gebruikers</a>
     <?php } ?>
 </div>

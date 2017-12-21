@@ -14,12 +14,12 @@ and open the template in the editor.
     $target_dir = "../uploads/";
     $gebruiker = $user->gebruiker_ophalen_id($_SESSION['user_session']);
 
-    if ($gebruiker['rol_id'] != 3) {
+    if ($gebruiker['rol_id'] == 1) {
         $_SESSION['flash'] = array(
             'type' => 'danger',
             'message' => 'Je hebt geen rechten om een pak aan te maken!'
         );
-        $user->redirect('../pakken/pietenpakken.php');
+        $user->redirect('../pakken/pietenpakken.php?pagina=1');
     }
 
     $pak_id = $_GET['id'];
@@ -31,7 +31,7 @@ and open the template in the editor.
             'type' => 'danger',
             'message' => 'Pak kan niet worden gevonden!'
         );
-        $user->redirect('../pakken/pietenpakken.php');
+        $user->redirect('../pakken/pietenpakken.php?pagina=1');
     }
 
     $rolID = $gebruiker['rol_id'];
@@ -156,8 +156,10 @@ and open the template in the editor.
 <div class="topnav">
     <a href="pietenpakken.php">Pietenpakken</a>
     <a href="sinterklaaspakken.php">Sinterklaaspakken</a>
-    <?php if ($rolID == '3') { ?>
+    <?php if ($rolID > 1) { ?>
         <a href="beschadigd.php">Beschadigd</a>
+    <?php } ?>
+    <?php if ($rolID == 3) { ?>
         <a href="../gebruikers/overzicht.php?pagina=1">Gebruikers</a>
     <?php } ?>
 </div>
@@ -359,7 +361,7 @@ and open the template in the editor.
     <div class="footer">
         <div class="left">
             <a href="../melding/aanmaken.php?pakid=<?php echo $pak_id ?>">Melding aanmaken</a>
-            <?php if ($rolID == '3') { ?>
+            <?php if ($rolID > 1) { ?>
                 <a href="toevoegen.php">Pak toevoegen</a>
                 <a href="../pakken/verwijderen.php?id=<?php echo $pak_id; ?>" onclick="return confirm('Weet je zeker dat je dit pak wilt verwijderen?');">Dit pak verwijderen</a>
             <?php } ?>

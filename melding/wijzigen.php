@@ -11,12 +11,12 @@
     // Rol van de gebruiker ophalen
     $rol_id = $gebruiker['rol_id'];
     // cheken of de gebruiker rechten heeft
-    if ($gebruiker['rol_id'] != 3) {
+    if ($gebruiker['rol_id'] == 1) {
         $_SESSION['flash'] = array(
             'type' => 'danger',
             'message' => 'Je hebt geen rechten om een schademelding te bewerken!'
         );
-        $user->redirect('../pakken/pietenpakken.php');
+        $user->redirect('../pakken/pietenpakken.php?pagina=1');
     }
     $melding = $costume->ophalen_melding_pak($_GET['id']);
     // Controleert of er op de 'Opslaan' knop is gedrukt, updatet de melding
@@ -46,11 +46,13 @@
 
 <!-- Navigatiebar -->
 <div class="topnav">
-    <a href="../pakken/pietenpakken.php">Pietenpakken</a>
-    <a href="../pakken/sinterklaaspakken.php">Sinterklaaspakken</a>
-    <?php if ($rol_id == 3) { ?>
-        <a class="active" href="../pakken/beschadigd.php">Beschadigd</a>
-        <a href="../gebruikers/overzicht.php">Gebruikers</a>
+    <a href="../pakken/pietenpakken.php?pagina=1">Pietenpakken</a>
+    <a href="../pakken/sinterklaaspakken.php?pagina=1">Sinterklaaspakken</a>
+    <?php if ($rol_id > 1) { ?>
+        <a class="active" href="../pakken/beschadigd.php?pagina=1">Beschadigd</a>
+    <?php } ?>
+    <?php if ($rolID == 3) { ?>
+        <a href="../gebruikers/overzicht.php?pagina=1">Gebruikers</a>
     <?php } ?>
 </div>
 <div class="container">

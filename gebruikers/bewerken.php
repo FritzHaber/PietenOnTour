@@ -11,7 +11,7 @@
     $rolID = $ingelogde_gebruiker['rol_id'];
 
     if (empty($ingelogde_gebruiker)) {
-        $user->redirect('../index.php');
+        $user->redirect('../pakken/pietenpakken.php?pagina=1');
     }
 
     if ($rolID != 3) {
@@ -19,7 +19,7 @@
             'type' => 'danger',
             'message' => 'Je hebt geen rechten om een gebruiker te bewerken!'
         );
-        $user->redirect('../pakken/pietenpakken.php');
+        $user->redirect('../pakken/pietenpakken.php?pagina=1');
     }
 
     if (isset($_SESSION['gebruiker_aangemaakt'])) {
@@ -82,10 +82,12 @@
 <div class="topnav">
     <a href="../pakken/pietenpakken.php?pagina=1">Pietenpakken</a>
     <a href="../pakken/sinterklaaspakken.php?pagina=1">Sinterklaaspakken</a>
-    <?php if ($rolID == '3') { ?>
+    <?php if ($rolID > 1) { ?>
         <a href="../pakken/beschadigd.php?pagina=1">Beschadigd</a>
-        <a href="../gebruikers/overzicht.php?pagina=1">Gebruikers</a>
-    <?php } ?>
+    <?php } ?>  
+    <?php if ($rolID == 3) { ?>
+        <a class="active" href="../gebruikers/overzicht.php?pagina=1">Gebruikers</a>
+    <?php } ?>    
 </div>
 
 <div class="container">

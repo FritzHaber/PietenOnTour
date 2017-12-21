@@ -6,12 +6,12 @@
     $ingelogde_gebruiker = $user->gebruiker_ophalen_id($_SESSION['user_session']);
     $rol_id = $ingelogde_gebruiker['rol_id'];
 
-    if ($rol_id !== '3') {
+    if ($rol_id !== 3) {
         $_SESSION['flash'] = array(
             'type' => 'danger',
             'message' => 'Je hebt geen rechten om een gebruiker te verwijderen!'
         );
-        $user->redirect('../index.php');
+        $user->redirect('../pakken/pietenpakken.php?pagina=1');
     }
 
     $gebruiker_id = $_GET['id'];

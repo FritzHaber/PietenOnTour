@@ -9,7 +9,7 @@
             'type' => 'danger',
             'message' => 'Je hebt geen rechten om een gebruiker aan te maken!'
         );
-        $user->redirect('../index.php');
+        $user->redirect('../pakken/pietenpakken.php?pagina=1');
     }
 
     $gebruikerId = $_GET['id'];
@@ -17,7 +17,7 @@
     $rolID = $gebruiker['RolID'];
     
     if (empty($gebruiker)) {
-        $user->redirect('../index.php');
+        $user->redirect('../pakken/pietenpakken.php?pagina=1');
     }
 
     if (isset($_POST['opslaan'])) {
@@ -63,12 +63,14 @@
 <body>
 
 <div class="topnav">
-    <ahref="pakken/pietenpakken.php">Pietenpakken</a>
-    <a href="pakken/sinterklaaspakken.php">Sinterklaaspakken</a>
-    <?php if ($rolID == '3') { ?>
-        <a href="pakken/beschadigd.php">Beschadigd</a>
-        <a  class="active"  href="../PietenOnTour/../gebruikers/bekijken.php">Gebruikers bekijken</a>
+    <a href="pakken/pietenpakken.php?pagina=1">Pietenpakken</a>
+    <a href="pakken/sinterklaaspakken.php?pagina=1">Sinterklaaspakken</a>
+    <?php if ($rolID > 1) { ?>
+        <a href="pakken/beschadigd.php?pagina=1">Beschadigd</a>
     <?php } ?>
+    <?php if ($rolID == 3) { ?>
+        <a class="active" href="../gebruikers/overzicht.php?pagina=1">Gebruikers</a>
+    <?php } ?>    
 </div>
     
 <div class="container">
