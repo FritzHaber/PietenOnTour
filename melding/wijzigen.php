@@ -58,7 +58,7 @@
 <div class="container">
     <form name="melding" method="POST" action="wijzigen.php?id=<?php echo $melding['melding_id']; ?>">
         <div class="row">
-            <img src="<?php print($melding['13']) ?>" class="img-responsive" width="200" height="250">
+            <img src="../uploads/<?php print($melding['13']) ?>" class="img-responsive" width="200" height="250">
             <p class="pak-info">PakID: <?php print $melding['pak_id'] ?><br>
                 Maat: <?php print $melding['maat'] ?><br>
                 Kleur: <?php print $melding['kleur'] ?><br>
@@ -98,7 +98,7 @@
                         <option <?php echo $status_id == 4 ? 'selected' : '' ?> value=4>Afgewezen</option>
                     </select>
                 </div>
-                <img width="200" height="270" src="<?php echo $melding['16']; ?>" alt="">
+                <img width="200" height="270" src="../uploads/<?php echo $melding['16']; ?>" alt="">
             </div>
         </div>
         <!-- Sla de gegevens op of annuleer -->

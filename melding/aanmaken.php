@@ -32,11 +32,12 @@
         return $user->redirect('../pakken/pietenpakken.php?pagina=1');
     }
     if (isset($_POST['opslaan'])) {
+        $imgfile = str_replace(" ", "_", pathinfo($_FILES["foto"]["name"], PATHINFO_BASENAME));
         $check = pathinfo($_FILES["foto"]["name"], PATHINFO_EXTENSION); // Haalt de bestandsextensie op
         if (($check == "png" || $check == "jpg" || $check == "jpeg") && file_exists($_FILES["foto"]["tmp_name"]) &&
             is_uploaded_file($_FILES["foto"]["tmp_name"])
         ) {
-            $costume->aanmaken_melding($pak, $gebruiker['gebruiker_id'], $_POST);
+            $costume->aanmaken_melding($pak, $gebruiker['gebruiker_id'], $_POST, $imgfile);
         } else {
             $error = array(
                 'type' => 'danger',
@@ -70,13 +71,11 @@
 <body>
 <!-- Navigatiebar -->
 <div class="topnav">
-    <a class="active" href="../pakken/pietenpakken.php?pagina=1">Pietenpakken</a>
-    <a href="../pakken/sinterklaaspakken.php?pagina=1">Sinterklaaspakken</a>
-    <?php if ($rol_id > 1) { ?>
-        <a href="../pakken/beschadigd.php?pagina=1">Beschadigd</a>
-    <?php } ?>
-    <?php if ($rolID == 3) { ?>
-        <a href="../gebruikers/overzicht.php?pagina=1">Gebruikers</a>
+    <a class="active" href="../pakken/pietenpakken.php">Pietenpakken</a>
+    <a href="../pakken/sinterklaaspakken.php">Sinterklaaspakken</a>
+    <a href="../pakken/beschadigd.php">Beschadigd</a>
+    <?php if ($rol_id == 3) { ?>
+        <a href="../gebruikers/overzicht.php">Gebruikers</a>
     <?php } ?>
 </div>
 <div class="container">
@@ -90,7 +89,7 @@
     <form name="aanmaken" method="POST" action="aanmaken.php?pakid=<?php echo $pak_id ?>" enctype="multipart/form-data">
         <!-- Informatie over het pak -->
         <div class="row">
-            <img src="<?php print($pak['foto_id']) ?>" class="img-responsive">
+            <img src="../uploads/<?php print($pak['foto_id']) ?>" class="img-responsive">
             <p style="padding:0px 0px 150px 10px;">PakID: <?php print $pak['pak_id'] ?><br>
                 Maat: <?php print $pak['maat'] ?><br>
                 Kleur: <?php print $pak['kleur'] ?><br>

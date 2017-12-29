@@ -130,7 +130,7 @@
                 if ($type === 'sinterklaas') {
                     $onderdelen = array(
                         'mantel' => 'mantel',
-                        'jurk' => 'jurk',   
+                        'jurk' => 'jurk',
                         'mijter' => 'mijter'
                     );
 
@@ -234,6 +234,7 @@
         
         public function pak_onderdelen_bewerken($pak_id, $onderdelen, $gebruikerid) {
             try {
+                $vast = 0;
                 $actie = 2;
                 $datum_upload = date("Y/m/d h:i:sa");
                 
@@ -241,15 +242,15 @@
                     $stmt = $this->db->prepare("UPDATE onderdeel_pak
                                                 SET pak_id =?,
                                                     onderdeel =?
-                                                WHERE pak_id =? && is_vast_onderdeel = 0");
+                                                WHERE pak_id =? && is_vast_onderdeel =? && onderdeel_id =?");
                     $stmt->execute(array(
                         $pak_id,
-                        $onderdelen[$key],
+                        $onderdeel,
                         $pak_id,
+                        $vast,
+                        $key,
                         
                     ));
-                print_r($onderdelen[$key]);
-                exit;
                     echo $key + 1;
                 }
                 $stmt = $this->db->prepare("INSERT INTO `pak_event`(`pak_id`, `gebruiker_id`, `actie_id`, `datum`)
@@ -361,7 +362,7 @@
             return $staat;
         }
 
-        public function aanmaken_melding($pak, $gebruiker_id, $melding) {
+        public function aanmaken_melding($pak, $gebruiker_id, $melding, $target_file) {
             try {
                 $stmt = $this->db->prepare("INSERT INTO melding_pak(pak_id, gebruiker_id, status_id, bericht) 
                                             VALUES (?,?,?,?)");
@@ -375,24 +376,22 @@
 
                 $this->update_pak_staat($pak['pak_id'], 2);
 
-                $stmt = $this->db->prepare("INSERT INTO `pak_event`(`pak_id`, `gebruiker_id`, `actie_id`, `datum`)
+                $stmt = $this->db->prepare("INSERT INTO pak_event(pak_id, gebruiker_id, actie_id, datum)
                                   VALUES (?, ?, ?, ?)");
                 $stmt->execute(array(
                     $pak["pak_id"],
-                    $gebruikerid,
+                    $gebruiker_id,
                     3,
                     date("Y/m/d h:i:sa"),
                 ));
                 
                 $melding_id = $melding['melding_id'];
-                $doelmap = "http://localhost:8080/xampp/PietenOnTour/uploads/";
-                $file = $doelmap . basename($_FILES["foto"]["name"]);
-                move_uploaded_file($_FILES["foto"]["tmp_name"], '../uploads/');
+                move_uploaded_file($_FILES["foto"]["tmp_name"], '../uploads/'.$target_file);
                 $datum_upload = date("Y-m-d H:i:s");
                 $stmt = $this->db->prepare("INSERT INTO foto_melding 
                                             VALUES (?, ?, ?)");
                 $stmt->execute(array(
-                    $file,
+                    $target_file,
                     $melding_id,
                     $datum_upload
                 ));
