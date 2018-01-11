@@ -51,14 +51,17 @@
 
     // paginanummer ophalen
     if (!isset($_GET['pagina'])) {
-        $pagina = 1;
+        $pagina_active = 1;
     } else {
-        $pagina = $_GET['pagina'];
+        $pagina_active = $_GET['pagina'];
     }
 
-    $begin_limiet = ($pagina - 1) * $limiet;
-    $lijst = "SELECT * FROM gebruiker ORDER BY voornaam DESC LIMIT $begin_limiet, 
-                      $limiet";
+    $begin_limiet = ($pagina_active - 1) * $limiet;
+    $lijst = "SELECT *
+              FROM gebruiker
+              ORDER BY voornaam DESC
+              LIMIT $begin_limiet, 
+              $limiet";
 
     $r = $dbh->prepare($lijst);
     $r->execute();
@@ -162,7 +165,7 @@
         <ul class="pagination justify-content-center">
             <?php
                 for ($pagina = 1; $pagina <= $aantal_paginas; $pagina ++):?>
-                    <li class="page-item <?php echo ($pagina == $_GET['pagina']) ? 'active' : '' ?>"><a
+                    <li class="page-item <?php echo ($pagina == $pagina_active) ? 'active' : '' ?>"><a
                             class="page-link"
                         <a href='<?php echo "?pagina=$pagina"; ?>'
                            class="links"><?php echo $pagina; ?></a></li>

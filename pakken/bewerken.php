@@ -14,14 +14,6 @@ and open the template in the editor.
     $target_dir = "../uploads/";
     $gebruiker = $user->gebruiker_ophalen_id($_SESSION['user_session']);
 
-    if ($gebruiker['rol_id'] == 1) {
-        $_SESSION['flash'] = array(
-            'type' => 'danger',
-            'message' => 'Je hebt geen rechten om een pak aan te maken!'
-        );
-        $user->redirect('../pakken/pietenpakken.php?pagina=1');
-    }
-
     $pak_id = $_GET['id'];
     $pak = $costume->pak_ophalen_pakid($pak_id);
     $pak_events = $costume->pak_event_ophalen($pak_id);
@@ -51,7 +43,13 @@ and open the template in the editor.
 //    }
     
     if (isset($_POST['opslaan_details'])) {
-        if (!empty($_POST['pakid'])) {      // && !empty($_POST['profiel_foto'])
+        if ($gebruiker['rol_id'] == 1) {
+        $_SESSION['flash'] = array(
+            'type' => 'danger',
+            'message' => 'Je hebt geen rechten om een pak aan te maken!'
+        );
+        $user->redirect('../pakken/pietenpakken.php?pagina=1');
+        } elseif (!empty($_POST['pakid'])) {      // && !empty($_POST['profiel_foto'])
             if (is_uploaded_file($_FILES["profiel_foto"]["tmp_name"])) {
                 $imgfile = str_replace(" ", "_", pathinfo($_FILES["profiel_foto"]["name"], PATHINFO_BASENAME));
                 $target_file = $target_dir . $imgfile;
@@ -110,7 +108,8 @@ and open the template in the editor.
                     }
                 }
             } else {
-                $pak = $costume->pak_bewerken($_POST, $pak_id, $foto = false, $gebruiker);
+                $imgfile = $pak["foto_id"];
+                $pak = $costume->pak_bewerken($_POST, $pak_id, $foto = false, $gebruiker, $imgfile);
                 $pak = $costume->pak_ophalen_pakid($pak_id);
                 $_SESSION['flash'] = array(
                     'type' => 'success',
@@ -141,6 +140,16 @@ and open the template in the editor.
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <link rel="stylesheet" href="../styling/footer.css">
     <link rel="stylesheet" href="../styling/nav-bar.css">
+    <script src="../scripts/script.js"></script>
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+            integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+            crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js"
+            integrity="sha384-vFJXuSJphROIrBnz7yo7oB41mKfc8JzQZiCq4NCceLEaO4IHwicKwpJf9c9IpFgh"
+            crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js"
+            integrity="sha384-alpBpkh1PFOepccYVYDB4do5UnbKysX5WZXm3XxPqe5iKTfUKjNkCk9SaVuEZflJ"
+            crossorigin="anonymous"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <link rel="icon" href="../plaatjes/favicon.png" type="image/gif" sizes="16x16">
@@ -164,199 +173,223 @@ and open the template in the editor.
     <?php } ?>
 </div>
 <div class="container">
-    <h1>Pak '<?php
-            echo $pak['pak_id'];
-        ?>' bewerken
-    </h1>
-    <?php if (!empty($error)) { ?>
-        <div class="alert alert-<?php echo $error['type']; ?> ">
-            <?php echo $error['message']; ?>
+<div class="container">
+    <ul class="nav nav-tabs" id="tab" role="tablist">
+        <li class="nav-item">
+            <a class="nav-link <?php if (empty($_SESSION['volgende'])) {echo 'active';} ?>" id="profile-tab" data-toggle="tab" href="#details" role="tab"
+               aria-controls="details"
+               aria-selected="true">Details</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link <?php if (!empty($_SESSION['volgende'])) {echo 'active';} ?>" id="profile-tab" data-toggle="tab" href="#onderdelen" role="tab"
+               aria-controls="onderdelen"
+               aria-selected="false">Onderdelen</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="profile-tab" data-toggle="tab" href="#log" role="tab"
+               aria-controls="log"
+               aria-selected="false">Log</a>
+        </li>
+    </ul>
+    <div class="tab-content" id="tab">
+        <div class="tab-pane fade <?php if (empty($_SESSION['volgende'])) {echo 'show active';} ?>" id="details" role="tabpanel" aria-labelledby="profile-tab">
+            <h1>
+                Pak details bewerken
+            </h1>
+            <hr>
+            <?php if (!empty($error)) { ?>
+                <div class="alert alert-<?php echo $error['type']; ?> ">
+                    <?php echo $error['message']; ?>
+                </div>
+            <?php } ?>
+            <form action="bewerken.php?id=<?php echo $pak_id ?>" method="POST" enctype="multipart/form-data">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <div class="form-group row">
+                            <label for="pakid" class="col-sm-3 col-form-label">PakID</label>
+                            <div class="col-sm-9">
+                                <input name="pakid" required type="number" class="form-control" id="pakid"
+                                       value="<?php echo isset($pak["pak_id"]) ? $pak["pak_id"] : ''; ?>">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="maat" class="col-sm-3 col-form-label">Maat</label>
+                            <select name="maat" class="form-control col-sm-9" id="maat">
+                                <option value="s"<?php if ($pak["maat"] == "s") {
+                                    echo 'selected="selected"';
+                                } ?>>S
+                                </option>
+                                <option value="m"<?php if ($pak["maat"] == "m") {
+                                    echo 'selected="selected"';
+                                } ?>>M
+                                </option>
+                                <option value="x"<?php if ($pak["maat"] == "x") {
+                                    echo 'selected="selected"';
+                                } ?>>X
+                                </option>
+                                <option value="xl"<?php if ($pak["maat"] == "xl") {
+                                    echo 'selected="selected"';
+                                } ?>>XL
+                                </option>
+                            </select>
+                        </div>
+                        <div class="form-group row">
+                            <label for="kleur" class="col-sm-3 col-form-label">Kleur</label>
+                            <select name="kleur" class="form-control col-sm-9" id="kleur">
+                                <option value="Rood/Zwart"<?php if ($pak["kleur"] == "Rood/Zwart") {
+                                    echo 'selected="selected"';
+                                } ?>>Rood/Zwart
+                                </option>
+                                <option value="Paars/Zwart"<?php if ($pak["kleur"] == "Paars/Zwart") {
+                                    echo 'selected="selected"';
+                                } ?>>Paars/Zwart
+                                </option>
+                                <option value="Groen/Zwart"<?php if ($pak["kleur"] == "Groen/Zwart") {
+                                    echo 'selected="selected"';
+                                } ?>>Groen/Zwart
+                                </option>
+                                <option value="Geel/Zwart"<?php if ($pak["kleur"] == "Geel/Zwart") {
+                                    echo 'selected="selected"';
+                                } ?>>Geel/Zwart
+                                </option>
+                            </select>
+                        </div>
+                        <div class="form-group row">
+                            <label for="geslacht" class="col-sm-3 col-form-label">Geslacht</label>
+                            <select name="geslacht" class="form-control col-sm-9" id="geslacht">
+                                <option value="Man"<?php if ($pak["geslacht"] == "Man") {
+                                    echo 'selected="selected"';
+                                } ?>>Man
+                                </option>
+                                <option value="Vrouw"<?php if ($pak["geslacht"] == "Vrouw") {
+                                    echo 'selected="selected"';
+                                } ?>>Vrouw
+                                </option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="form-group row">
+                            <label for="beschadigd" class="col-sm-3 col-form-label">Beschadigd</label>
+                            <div class="col-sm-9">
+    <!--                            <input name="beschadigd" value="beschadigd" <?php// if ($pak["omschrijving"] ==
+                                    //"beschadigd"
+                            // ) {
+                                //   echo 'checked="checked"';
+                            // } ?> type="checkbox" class="form-control" id="beschadigd">-->
+                                <input name="beschadigd" value="1" type="hidden" class="form-control" id="beschadigd">
+                                <input name="beschadigd" value="2" <?php if ($pak["staat_id"] == "2") {
+                                    echo 'checked="checked"';
+                                } ?> type="checkbox" class="form-control" id="beschadigd">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="type" class="col-sm-3 col-form-label">Type</label>
+                            <select name="type" class="form-control col-sm-9" id="type">
+                                <option value="piet"<?php if ($pak["type"] == "piet") {
+                                    echo 'selected="selected"';
+                                } ?>>Piet
+                                </option>
+                                <option value="sinterklaas"<?php if ($pak["type"] == "sinterklaas") {
+                                    echo 'selected="selected"';
+                                } ?>>Sinterklaas
+                                </option>
+                            </select>
+                        </div>
+                        <div class="form-group row">
+                            <label for="profiel_foto" class="col-sm-3 col-form-label">Profiel foto</label>
+                            <div class="col-sm-9">
+                                <input name="profiel_foto" type="file" class="form-control" id="profiel_foto"
+                                    value="<?php echo $pak["foto_id"] ?>">
+                                <img class="img-thumbnail" id="blah" src="../uploads/<?php echo $pak["foto_id"] ?>"
+                                    alt="your image"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <button name="opslaan_details" class="btn btn-primary">Opslaan</button>
+                <a href="pietenpakken.php?pagina=1" class="btn btn-primary" role="button">Annuleren</a>
+            </form>
         </div>
-    <?php } ?>
 
-    <div class="nav nav-tabs">
-        <button class="nav-link" onclick="openCity(event, 'Details')" id="<?php if (empty($_SESSION['volgende'])) {
-        echo 'defaultOpen';
-        } ?>">Details
-        </button>
-        <button class="nav-link" onclick="openCity(event, 'Onderdelen')" id="<?php if (!empty($_SESSION['volgende'])) {
-            echo 'defaultOpen';
-        } ?>">Onderdelen
-        </button>
-        <button class="nav-link" onclick="openCity(event, 'Log')">Log</button>
+        <div class="tab-pane fade <?php if (!empty($_SESSION['volgende'])) {echo 'show active';} ?>" id="onderdelen" role="tabpanel" aria-labelledby="profile-tab">
+            <h1>
+                Pak onderdelen bewerken
+            </h1>
+            <hr>
+            <?php if (!empty($error)) { ?>
+                <div class="alert alert-<?php echo $error['type']; ?> ">
+                    <?php echo $error['message']; ?>
+                </div>
+            <?php } ?>
+            <form action="bewerken.php?id=<?php echo $pak_id ?>" method="POST" enctype="multipart/form-data">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <?php foreach ($vaste_onderdelen as $key => $onderdeel) { ?>
+                            <div class="form-group row">
+                                <label for="vastonderdeel1" class="col-sm-3 col-form-label">Vastonderdeel <?php echo $key +
+                                        1 ?></label>
+                                <div class="col-sm-9">
+                                    <input disabled name="<?php echo $key; ?>" required type="text" class="form-control"
+                                        id="vastonderdeel1"
+                                        value="<?php echo $onderdeel['onderdeel']; ?>">
+                                </div>
+                            </div>
+                        <?php } ?>
+
+                        <?php foreach ($losse_onderdelen as $key => $onderdeel) { ?>
+                            <div class="form-group row">
+                                <label for="onderdeel12" class="col-sm-3 col-form-label">Onderdeel <?php echo $key +
+                                        1 ?></label>
+                                <div class="col-sm-9">
+                                    <input name="<?php echo $onderdeel['onderdeel_id'] ?>" type="text" class="form-control"
+                                        id="<?php echo $onderdeel['onderdeel_id'] ?>"
+                                        value="<?php echo $onderdeel['onderdeel'] ?>">
+                                </div>
+                            </div>
+                        <?php } ?>
+                    </div>
+                </div>
+                <button name="opslaan_onderdelen" class="btn btn-primary">Opslaan</button>
+                <a href="pietenpakken.php?pagina=1" class="btn btn-primary" role="button">Annuleren</a>
+            </form>
+        </div>
         <?php $_SESSION['volgende'] = ''; ?>
-    </div>
-    <!--        <h1>Pak bewerken</h1>-->
-    <hr>
-    <div id="Details" class="tabcontent">
-        <form action="bewerken.php?id=<?php echo $pak_id ?>" method="POST" enctype="multipart/form-data">
-            <div class="row">
-                <div class="col-sm-6">
-                    <div class="form-group row">
-                        <label for="pakid" class="col-sm-3 col-form-label">PakID</label>
-                        <div class="col-sm-9">
-                            <input name="pakid" required type="number" class="form-control" id="pakid"
-                                   value="<?php echo isset($pak["pak_id"]) ? $pak["pak_id"] : ''; ?>">
-                        </div>
-                    </div>
-                    <div class="form-group row">
-                        <label for="maat" class="col-sm-3 col-form-label">Maat</label>
-                        <select name="maat" class="form-control col-sm-9" id="maat">
-                            <option value="s"<?php if ($pak["maat"] == "s") {
-                                echo 'selected="selected"';
-                            } ?>>S
-                            </option>
-                            <option value="m"<?php if ($pak["maat"] == "m") {
-                                echo 'selected="selected"';
-                            } ?>>M
-                            </option>
-                            <option value="x"<?php if ($pak["maat"] == "x") {
-                                echo 'selected="selected"';
-                            } ?>>X
-                            </option>
-                            <option value="xl"<?php if ($pak["maat"] == "xl") {
-                                echo 'selected="selected"';
-                            } ?>>XL
-                            </option>
-                        </select>
-                    </div>
-                    <div class="form-group row">
-                        <label for="kleur" class="col-sm-3 col-form-label">Kleur</label>
-                        <select name="kleur" class="form-control col-sm-9" id="kleur">
-                            <option value="Rood/Zwart"<?php if ($pak["kleur"] == "Rood/Zwart") {
-                                echo 'selected="selected"';
-                            } ?>>Rood/Zwart
-                            </option>
-                            <option value="Paars/Zwart"<?php if ($pak["kleur"] == "Paars/Zwart") {
-                                echo 'selected="selected"';
-                            } ?>>Paars/Zwart
-                            </option>
-                            <option value="Groen/Zwart"<?php if ($pak["kleur"] == "Groen/Zwart") {
-                                echo 'selected="selected"';
-                            } ?>>Groen/Zwart
-                            </option>
-                            <option value="Geel/Zwart"<?php if ($pak["kleur"] == "Geel/Zwart") {
-                                echo 'selected="selected"';
-                            } ?>>Geel/Zwart
-                            </option>
-                        </select>
-                    </div>
-                    <div class="form-group row">
-                        <label for="geslacht" class="col-sm-3 col-form-label">Geslacht</label>
-                        <select name="geslacht" class="form-control col-sm-9" id="geslacht">
-                            <option value="Man"<?php if ($pak["geslacht"] == "Man") {
-                                echo 'selected="selected"';
-                            } ?>>Man
-                            </option>
-                            <option value="Vrouw"<?php if ($pak["geslacht"] == "Vrouw") {
-                                echo 'selected="selected"';
-                            } ?>>Vrouw
-                            </option>
-                        </select>
-                    </div>
+        <div class="tab-pane fade" id="log" role="tabpanel" aria-labelledby="profile-tab">
+            <h1>
+                Pak log
+            </h1>
+            <hr>
+            <?php if (!empty($error)) { ?>
+                <div class="alert alert-<?php echo $error['type']; ?> ">
+                    <?php echo $error['message']; ?>
                 </div>
-                <div class="col-sm-6">
-                    <div class="form-group row">
-                        <label for="beschadigd" class="col-sm-3 col-form-label">Beschadigd</label>
-                        <div class="col-sm-9">
-<!--                            <input name="beschadigd" value="beschadigd" <?php// if ($pak["omschrijving"] ==
-                                //"beschadigd"
-                           // ) {
-                             //   echo 'checked="checked"';
-                           // } ?> type="checkbox" class="form-control" id="beschadigd">-->
-                            <input name="beschadigd" value="1" type="hidden" class="form-control" id="beschadigd">
-                            <input name="beschadigd" value="2" <?php if ($pak["staat_id"] == "2") {
-                                echo 'checked="checked"';
-                            } ?> type="checkbox" class="form-control" id="beschadigd">
-                        </div>
-                    </div>
-                    <div class="form-group row">
-                        <label for="type" class="col-sm-3 col-form-label">Type</label>
-                        <select name="type" class="form-control col-sm-9" id="type">
-                            <option value="piet"<?php if ($pak["type"] == "piet") {
-                                echo 'selected="selected"';
-                            } ?>>Piet
-                            </option>
-                            <option value="sinterklaas"<?php if ($pak["type"] == "sinterklaas") {
-                                echo 'selected="selected"';
-                            } ?>>Sinterklaas
-                            </option>
-                        </select>
-                    </div>
-                    <div class="form-group row">
-                        <label for="profiel_foto" class="col-sm-3 col-form-label">Profiel foto</label>
-                        <div class="col-sm-9">
-                            <input name="profiel_foto" type="file" class="form-control" id="profiel_foto"
-                                   value="<?php echo $pak["foto_id"] ?>">
-                            <img class="img-thumbnail" id="blah" src="../uploads/<?php echo $pak["foto_id"] ?>"
-                                 alt="your image"/>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <button name="opslaan_details" class="btn btn-primary">Opslaan</button>
-            <a href="pietenpakken.php?pagina=1" class="btn btn-primary" role="button">Annuleren</a>
-        </form>
-    </div>
-
-    <div id="Onderdelen" class="tabcontent">
-        <form action="bewerken.php?id=<?php echo $pak_id ?>" method="POST" enctype="multipart/form-data">
-            <div class="row">
-                <div class="col-sm-6">
-                    <?php foreach ($vaste_onderdelen as $key => $onderdeel) { ?>
-                        <div class="form-group row">
-                            <label for="vastonderdeel1" class="col-sm-3 col-form-label">Vastonderdeel <?php echo $key +
-                                    1 ?></label>
-                            <div class="col-sm-9">
-                                <input disabled name="<?php echo $key; ?>" required type="text" class="form-control"
-                                       id="vastonderdeel1"
-                                       value="<?php echo $onderdeel['onderdeel']; ?>">
-                            </div>
-                        </div>
-                    <?php } ?>
-
-                    <?php foreach ($losse_onderdelen as $key => $onderdeel) { ?>
-                        <div class="form-group row">
-                            <label for="onderdeel12" class="col-sm-3 col-form-label">Onderdeel <?php echo $key +
-                                    1 ?></label>
-                            <div class="col-sm-9">
-                                <input name="<?php echo $onderdeel['onderdeel_id'] ?>" type="text" class="form-control"
-                                       id="<?php echo $onderdeel['onderdeel_id'] ?>"
-                                       value="<?php echo $onderdeel['onderdeel'] ?>">
-                            </div>
-                        </div>
-                    <?php } ?>
-                </div>
-            </div>
-            <button name="opslaan_onderdelen" class="btn btn-primary">Opslaan</button>
-            <a href="pietenpakken.php?pagina=1" class="btn btn-primary" role="button">Annuleren</a>
-        </form>
-    </div>
-    <div id="Log" class="tabcontent">
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>Datum</th>
-                    <th>Actie</th>
-                    <th>Gebruiker</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php foreach ($pak_events AS $pak_event){ ?>
+            <?php } ?>
+            <table class="table">
+                <thead>
                     <tr>
-                        <td><?php echo isset($pak_event["datum"]) ? $pak_event["datum"] : ''; ?></td>
-                        <td><?php echo isset($pak_event["actie"]) ? $pak_event["actie"] : ''; ?></td>
-                        <td>
-                            <?php if (isset($pak_event["tussenvoegsel"])){
-                                        echo $pak_event["voornaam"] ." ". $pak_event["tussenvoegsel"] ." ". $pak_event["achternaam"];
-                                    } else { 
-                                        echo $pak_event["voornaam"] ." ". $pak_event["achternaam"];
-                            } ?>
-                        </td>
+                        <th>Datum</th>
+                        <th>Actie</th>
+                        <th>Gebruiker</th>
                     </tr>
-                <?php }?>
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    <?php foreach ($pak_events AS $pak_event){ ?>
+                        <tr>
+                            <td><?php echo isset($pak_event["datum"]) ? $pak_event["datum"] : ''; ?></td>
+                            <td><?php echo isset($pak_event["actie"]) ? $pak_event["actie"] : ''; ?></td>
+                            <td>
+                                <?php if (isset($pak_event["tussenvoegsel"])){
+                                            echo $pak_event["voornaam"] ." ". $pak_event["tussenvoegsel"] ." ". $pak_event["achternaam"];
+                                        } else { 
+                                            echo $pak_event["voornaam"] ." ". $pak_event["achternaam"];
+                                } ?>
+                            </td>
+                        </tr>
+                    <?php }?>
+                </tbody>
+            </table>
+        </div>
     </div>
     <div class="footer">
         <div class="left">

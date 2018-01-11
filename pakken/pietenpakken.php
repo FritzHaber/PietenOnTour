@@ -8,7 +8,7 @@
 
     // checken of de gebruiker is ingelogd
     if (!$user->is_ingelogd()) {
-        $user->redirect('login/login.php');
+        $user->redirect('../login/login.php');
     }
 
     if (isset($_SESSION['flash'])) {
@@ -32,6 +32,7 @@
     // Pagina's
     //===============================================
     // limiet per pagina instellen
+//    if (!isset($_GET["zoek-resultaten"])) {
     $limiet = 6;
     // gebruikers ophalen uit de database
     $query = ("SELECT * FROM pak 
@@ -56,6 +57,7 @@
     } else {
         $pagina_active = $_GET['pagina'];
     }
+//    }
 
     $begin_limiet = ($pagina_active - 1) * $limiet;
     $lijst = "SELECT * FROM pak 
@@ -118,7 +120,7 @@
                            placeholder="Zoek een pak..."
                            value="<?php echo isset($_GET['zoek-resulaten']) ? $zoekterm : '' ?>">
                     <span class="input-group-btn">
-                    <button class="btn btn" type="submit"><img src="../plaatjes/zoeken.png" width="20"
+                    <button class="btn btn" name="search" type="submit"><img src="../plaatjes/zoeken.png" width="20"
                                                                height="20"/></button>
                 </span>
                 </div>
@@ -169,6 +171,9 @@
         </tbody>
     </table>
     <hr>
+    <?php
+    if (!isset($_GET["search"])) {
+    ?>
     <nav aria-label="Page navigation example">
         <ul class="pagination justify-content-center">
             <?php
@@ -177,9 +182,12 @@
                             class="page-link"
                         <a href='<?php echo "?pagina=$pagina"; ?>'
                            class="links"><?php echo $pagina; ?></a></li>
-                <?php endfor; ?>
+            <?php endfor; ?>
         </ul>
     </nav>
+    <?php
+    }
+    ?>
 </div>
 <div class="footer">
     <div class="left">
@@ -188,6 +196,9 @@
         <?php } ?>
     </div>
     <div class="right">
+        <?php if ($rolID > 1) { ?>
+        <a href="../tijdblokken/tijdsblok.php">Tijdblok aanmaken</a>
+        <?php } ?>
         <a href="../gebruikers/mijn-account.php">Account</a>
         <a href="../login/uitloggen.php">Uitloggen</a>
     </div>

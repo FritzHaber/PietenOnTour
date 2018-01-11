@@ -126,6 +126,13 @@
                aria-controls="beschikbaar"
                aria-selected="false">Beschikbaarheid</a>
         </li>
+        <?php if ($rolID == 2 || $rolID == 3) { ?>
+            <li class="nav-item">
+                <a class="nav-link" id="profile-tab" data-toggle="tab" href="#boekingen" role="tab"
+                   aria-controls="boekingen"
+                   aria-selected="false">Boekingen</a>
+            </li>
+        <?php } ?>
     </ul>
     <div class="tab-content" id="tab">
         <div class="tab-pane fade show active" id="account" role="tabpanel" aria-labelledby="profile-tab">
@@ -301,7 +308,7 @@
                                             <a class="collapsed" data-toggle="collapse"
                                                href="#collapse<?php echo $key; ?>"
                                                aria-expanded="false" aria-controls="collapse<?php echo $key; ?>">
-                                                <?php echo date('d-m-Y', strtotime($tijdsblok['begin_tijd'])); ?>
+                                                <?php echo date('d-m-Y H:i', strtotime($tijdsblok['begin_tijd'])) . " tot " . date('H:i', strtotime($tijdsblok['eind_tijd'])); ?>
                                             </a>
                                         </h5>
                                     </div>
@@ -369,6 +376,16 @@
                     </table>
                 </div>
             </div>
+        </div>
+        <div class="tab-pane fade" id="boekingen" role="tabpanel" aria-labelledby="profile-tab">
+            <h2>
+                Overzicht bezoeken/tijdsblokken en inschrijvingen
+            </h2>
+            <hr>
+            <a href="../boekingen/overzicht_boekingen.php">Overzicht boekingen</a>
+<!--            <br>-->
+<!--            <a href="../boekingen/overzicht_teams.php">Overzicht teams</a>-->
+            <!--            <a href="../boekingen/overzicht_teams.php">Overzicht teams</a>-->
         </div>
     </div>
     <div class="footer">

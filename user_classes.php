@@ -67,7 +67,6 @@
 
         public function gebruiker_ophalen_id($gebruiker_id) {
             try {
-                // gebruiker ophalen uit de database op basis van de gebuikerID
                 $stmt = $this->db->prepare("SELECT * FROM gebruiker WHERE gebruiker_id=:gebruiker_id");
                 $stmt->execute(array(":gebruiker_id" => $gebruiker_id));
                 $gebruiker = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -129,14 +128,6 @@
                 $stmt = $this->db->prepare("INSERT INTO");
 
                 return $this->gebruiker_ophalen_id($this->db->lastInsertId());
-
-
-                //                $to = $mail;
-                //                $subject = "Account registratie";
-                //                $txt = "Huidige wachtwoord: " . $wachtwoord;
-                //                $headers = "From: info@pietenontour.com" . "\r\n";
-                //
-                //                mail($to, $subject, $txt, $headers);
             } catch (PDOException $e) {
                 echo $e->getMessage();
             }

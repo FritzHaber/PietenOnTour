@@ -51,8 +51,8 @@
     <?php if ($rol_id > 1) { ?>
         <a class="active" href="../pakken/beschadigd.php?pagina=1">Beschadigd</a>
     <?php } ?>
-    <?php if ($rolID == 3) { ?>
-        <a href="../gebruikers/overzicht.php?pagina=1">Gebruikers</a>
+    <?php if ($rol_id == 3) { ?>
+        <a href="../gebruikers/overzicht.php">Gebruikers</a>
     <?php } ?>
 </div>
 <div class="container">
@@ -64,7 +64,6 @@
                 Kleur: <?php print $melding['kleur'] ?><br>
                 Geslacht: <?php print $melding['geslacht'] ?></p>
         </div>
-
         <div class="row">
             <div class="col-sm-6">
                 <br>
@@ -98,7 +97,9 @@
                         <option <?php echo $status_id == 4 ? 'selected' : '' ?> value=4>Afgewezen</option>
                     </select>
                 </div>
-                <img width="200" height="270" src="../uploads/<?php echo $melding['16']; ?>" alt="">
+                <img width="600" height="810" src="../uploads/<?php echo $melding['16']; ?>" alt="Fout met ophalen van de foto">
+<!--                <img class="img-thumbnail" id="blah" src="../uploads/<?php// echo $melding["foto_id"] ?>"
+                                    alt="your image"/>-->
             </div>
         </div>
         <!-- Sla de gegevens op of annuleer -->
