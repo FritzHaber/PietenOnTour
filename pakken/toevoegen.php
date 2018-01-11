@@ -21,7 +21,7 @@
 
     // checken of de gebruiker is ingelogd
     if (!$user->is_ingelogd()) {
-        $user->redirect('login/login.php');
+        $user->redirect('../login/login.php');
     }
 
     if (isset($_SESSION['flash'])){

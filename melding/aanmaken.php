@@ -12,6 +12,11 @@
     $user = new gebruiker($dbh);
     $costume = new pak($dbh);
 
+    // checken of de gebruiker is ingelogd
+    if (!$user->is_ingelogd()) {
+        $user->redirect('../login/login.php');
+    }
+    
     // gebruiker ophalen uit de sessie
     $gebruiker = $user->gebruiker_ophalen_id($_SESSION['user_session']);
 

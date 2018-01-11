@@ -8,6 +8,11 @@
     $costume = new pak($dbh);
     $gebruiker = $user->gebruiker_ophalen_id($_SESSION['user_session']);
 
+        // checken of de gebruiker is ingelogd
+    if (!$user->is_ingelogd()) {
+        $user->redirect('../login/login.php');
+    }
+    
     // Rol van de gebruiker ophalen
     $rol_id = $gebruiker['rol_id'];
     // cheken of de gebruiker rechten heeft
