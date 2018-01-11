@@ -25,16 +25,14 @@
 
     // gebruikersrol ophalen doormiddel van een functie
     $rol = $user->gebruikers_rol($rolID);
-
-    $rol = $user->gebruikers_rol($rolID);
     
-//    if ($rolID != 3) {
-//        $_SESSION['flash'] = array(
-//            'type' => 'danger',
-//            'message' => 'Je hebt geen rechten om deze pagina te bezoeken!'
-//        );
-//        $user->redirect('../pakken/pietenpakken.php');
-//    }
+    if ($rolID != 3) {
+        $_SESSION['flash'] = array(
+            'type' => 'danger',
+            'message' => 'Je hebt geen rechten om deze pagina te bezoeken!'
+        );
+        $user->redirect('../pakken/pietenpakken.php');
+    }
 
     // Pagina's
     //===============================================

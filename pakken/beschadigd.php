@@ -101,7 +101,7 @@
     <?php if ($rolID > 1) { ?>
         <a class="active" href="../pakken/beschadigd.php?pagina=1">Beschadigd</a>
     <?php } ?>
-    <?php if ($rolID = 3) { ?>
+    <?php if ($rolID == 3) { ?>
         <a href="../gebruikers/overzicht.php?pagina=1">Gebruikers</a>
     <?php } ?>
 </div>
